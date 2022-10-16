@@ -1,0 +1,1155 @@
+\documentclass[11pt,a4paper,twoside,openright]{scrbook}
+\usepackage{clba}
+
+\usepackage[round]{natbib}
+
+
+%multilingual typesetting for Cyrillic/Greek/Turkish/Finnish alphabet set in clba style file; font for italics automatically changed by overleaf to default
+
+% Per Kapitel Nummerierung von Graphiken und Tabellen
+\usepackage{chngcntr}
+\counterwithin{figure}{chapter}
+\counterwithin{table}{chapter}
+
+% Hier die eigenen Daten eintragen
+\global\fach{Computerlinguistik}
+\global\arbeit{Bachelorarbeit}
+\global\titel{Creating a Multilingual Gold Standard for Case Marker Extraction}
+\global\bearbeiter{Xaver Maria Krückl}
+\global\betreuer{Leonie Weißweiler, M.Sc.}
+\global\pruefer{Prof. Dr. Hinrich Schütze}
+\global\universitaet{Ludwig- Maximilians- Universität München}
+\global\fakultaet{Fakultät für Sprach- und Literaturwissenschaften}
+\global\department{Department 2}
+
+\global\abgabetermin{13. Juni 2022}
+\global\bearbeitungszeit{04. April - 13. Juni 2022}
+\global\ort{München}
+
+
+\begin{document}
+
+% Deckblatt
+\deckblatt
+
+\pagestyle{scrheadings}
+\pagenumbering{gobble}
+
+
+
+% Erklärung fürs Prüfungsamt
+\erklaerung
+
+
+
+% Zusammenfassung
+\addchap{Abstract}
+\thispagestyle{scrplain}
+\noindent
+
+% hier den Abstract verfassen
+
+\textit{Case} depicts the basic dependencies that hold between constituents of sentences. Whilst this definition mainly describes its syntactic function, case similarly carries a certain semantic meaning as expressed in dependent nominals. In order to grasp such deep cases, the case marking strategies of world languages need to be analyzed. Using a morphological approach to this, case markers are defined as inflectional affixes or whole inflected word forms. This presents a both linguistically and computationally sensible definition that also partly applies to syntactically diverse languages. Based on this, the following thesis creates a multilingual gold standard of case markers that aims to help solving the task of automatically detecting cases in low-resource languages. It is compiled to further evaluate \textit{CaMEL} \citep{weissweiler2022camel}, an algorithm for the automated marking of surface cases in parallel corpora. From this, a step towards labeling deep cases, fine-grained semantic categories of nouns in sentences, can be taken. Similarly, differences and similarities between case systems of the analyzed languages emerge as a by-product of the analysis. Following the morphological definition of case markers, multilinguality is restricted in therms of language diversity to a set of inflectional languages. Moreover, the gold standard mainly contains flexion markers following the regular declension patterns of these languages. Yet, it is as detailed as possible to ensure reliability, validity and the possibility to test automated methods with it. \\
+
+Kasus zeigt die grundlegenden Abhängigkeiten an, die zwischen den Konstituenten eines Satzes herrschen. Während diese reduzierte Definition vor allem die syntaktische Funktion beschreibt, werden durch Kasus gleichzeitig auch semantische Bedeutungen durch abhängige Nominale ausgedrückt. Um solche Tiefenkasus zu erfassen, müssen die Strategien der Kasusmarkierung in den Weltsprachen analysiert werden. Basierend auf einem morphologischen Ansatz sind Kasusmarker flektierende Affixe oder komplette flektierte Wortformen. Dies stellt eine sowohl linguistisch als auch rechnerisch sinnvoll zu verarbeitende Definition dar, die zum Teil auch für syntaktisch unterschiedliche Sprachen gilt. Darauf aufbauend wird in der folgenden Arbeit ein mehrsprachiger Goldstandard von Kasusmarkierern erstellt. Dieser soll helfen, die automatisierte Erkennung von Kasus in ressourcenarmen Sprachen zu verbessern. Genauer soll damit \textit{CaMEL} \citep{weissweiler2022camel}, ein Algorithmus zur automatischen Markierung von funktionalem Kasus in parallelen Korpora weiter evaluiert werden. Auf dieser Grundlage können folglich auch Tiefenkasus und damit feine semantische Kategorien von Substantiven in Sätzen markiert werden. Ebenso werden Unterschiede und Gemeinsamkeiten zwischen den Kasussystemen der analysierten Sprachen als Nebenprodukt der Analyse sichtbar. In Anlehnung an die morphologische Definition von Kasusmarkern wird Mehrsprachigkeit in Bezug auf die Sprachenvielfalt auf flektierenden Sprachen beschränkt. Außerdem enthält der Goldstandard hauptsächlich Flexionsmarker die den regelmäßigen Deklinationsmustern dieser Sprachen folgen. Dennoch werden, um Zuverlässigkeit und Validität zu gewährleisten und automatisierte Methoden zu testen, auch alle dafür notwendigen Details miteinbezogen. 
+
+
+
+
+% Inhaltsverzeichnis
+\pagenumbering{Roman}
+
+\tableofcontents
+
+% Text mit arabischer Nummerierung
+\pagenumbering{arabic}
+
+\chapter{Introduction}
+
+\textit{Case}. As one of the most fundamental grammatical categories of natural languages, it depicts basic dependencies between the constituents of sentences. In more detail, \textit{case} marks the type of relationship that dependent nouns or noun phrases bear towards their syntactic head, i.e. the verb of a sentence \citep{blake1994case}. In order to fulfill this, case is realized in world languages by three main strategies. Apart from adpositions or the word order, \textit{case} is most prominently displayed by inflectional affixes attached to word stems. This morphological approach leads towards the central definition of case markers that is to be used in this thesis. Besides this grammatical function of \textit{case}, \citet{blake1994case} also mentions its power to indicate meaning by representing certain semantic roles that syntactic dependents assume. Regarding terminology, it is referred to deep cases in this context, a notion which emerged from the underlying case grammar approach of Charles Fillmore (see \citet{fillmore1987case} and \citet{cook1989case}). Fillmore proposes a set of relational syntactic-semantic cases as opposed to traditional and functional surface cases. The semantics of deep cases has been specified in several following works as in \citet{nilsen1972deep}, who used case features for identifying them. In addition, \citet{cook1989case} indicates the usage of case grammar theory and its models in early times of computational linguistics for the purpose of sentence analysis and sentence semantics. Based on this theory, \citet{butt2006case} suggests that by the surface type of case marking, the deeper semantic relationships between dependents and head are similarly indicated. Recently, this finding has been taken up by \citet{grimm2011semcas} and in more detail by \citet{cysouw2014cas}, who explicitly draw a connection between the usage of surface case markers and semantic content. 
+
+Thus, the main motivation for this work is to make a contribution to an automated and more detailed analysis of surface and thereby also deep cases in multiple languages. In concrete, this thesis should help to further evaluate \textit{CaMEL}: \textit{Case Marker Extraction without Labels} by \citet{weissweiler2022camel}, a recent contribution to the topic of case marker extraction in low-resource languages by means of computational morphology. It is aimed to refine the machine-generated silver standard on which \textit{CaMEL} is evaluated with the final product of this work, a manually-generated multilingual gold standard of morphological case markers. A detailed and automatic extraction of these would reduce the step towards grasping semantic meaning via the connected deep cases. Accompanying this, the following analysis will provide a deeper (computational) linguistic insight into the case systems of various languages. Due to the byproduct of summing up the case systems of various languages, possible similarities and differences can be visualized.
+
+As far as recognized, there is no similar work on a multilingual gold standard of case markers until this point. The previously mentioned automatically constructed silver standard builds on humanly-annotated morphological data but was mainly constructed by determining possible case marking suffixes according to frequency calculations \citep{weissweiler2022camel}. It is therefore necessary to develop a basic methodology of how case markers are to be extracted manually. For each language, chosen for the gold standard two or more scientific sources, i.e. linguistic grammars, are selected from which the regular pattern of inflectional case marking can be extracted. Then, for each declinable part of speech, these are merged into one comprehensive paradigm displayed in the following by several tables. It is aimed to create a gold standard that is as reliable and valid as possible without drifting into an overly extensive analysis. Therefore, finer grained differences and important special forms that may contribute to the detailed finding of surface and deep cases are added whereas foreign-language words and their specific declensions will be left out. 
+
+The following thesis is divided into three main parts. At first, multilingual case marking will be approached theoretically. Beginning with a basic linguistic definition of case concerning its function and a short overview on its abstract semantic meaning, the basics of case systems and cases of world languages are introduced. The findings of these subsections also suggest a closer look into the connection of language typology and case. Based on the overall insights, a both linguistically and computationally sensitive definition of actual case markers is created. This definition merges into the next chapters in which the methodology of extracting case markers used in this thesis is described. The selection of the consulted languages which proceeds according to language families and genera as well as number and kind of case marking behaviour is also justified. Subsequently, the most extensive chapter of the thesis follows. In this, the case markers of the selected languages are practically extracted and collected in a separate paradigms for each inflected part of speech. Finally, after the results have been summarized and classified in the conclusion, an outlook to possible future work on the topic is given.
+
+
+
+
+
+
+\chapter{Theoretical Approaches to Multilingual Case Marking}
+
+This chapter introduces the theoretical foundations and approaches to multilingual case and its marking. Starting from a general definition which is followed by a short overview on the semantic relations of case, concrete case systems and cases of world languages are set out. Additionally, the connection of case to classical language typology will be outlined. Resulting from this, a linguistically and computationally sensible definition of case markers will be developed. This sets the basis for the practical analysis of creating the multilingual gold standard of case markers.
+
+
+
+\section{A Linguistic Definition of Case}
+
+In order to approach the term \textit{case}, it is helpful to initially analyze its denotation. Following the typical western tradition of a term's etymological analysis, \textit{case} derives from Latin \textit{casus} 'fall(ing)' which is on its part a loan translation from ancient Greek \textit{ptõsis} that similarly denotes 'fall(ing)' \citep{haspelmath2012hbocas}. According to \citet{blake1994case}, the term was therefore used to describe the form of words that fall away from their standard imprint. Based on this, ancient Greek philosophers developed a first concept of \textit{case} as a grammatical category. They describe it as a system of word forms that signifies the relationship amongst words in a sentence \citep{blake2012hbocas}. Until today, this finding has not really changed but further refinements have been made. Thus, \textit{case} is used at present to describe two phenomena. At first, it similarly defines the system in which way dependent nominals are marked for the type of relationship they bear towards their syntactic head \citep{blake1994case}. It is this basic definition on which not only contemporary literature but also the following understanding of \textit{case} will build. In a second sense, the term also generally qualifies a language to have a case system or rather to be a case language \citep{haspelmath2012hbocas}. This basic distinction shows that a comprehensive definition of \textit{case} is difficult to create. The concept is better described by several core notions common amongst linguists of various fields \citep{butt2006case}. Therefore, such key concepts that are necessary for the further elaboration on multilingual case marking are being presented in the following to extend Blake's basic definition. 
+
+Most works on \textit{case} initialize a more detailed analysis by going ahead with the classical philological approach  (see \citet{blake1994case}, \citet{butt2006case} and \citet{malcukov2012case}). At first, this serves to refine the basic definition as it indicates case concordance. Case is not only marked on nouns but also on noun's dependents, i.e. in complete noun phrases. In addition, ancient Greek and Latin provide a first answer on the question of what specifically may count as \textit{case}. In these languages, \textit{case} is realized via a system of inflection that is also possibly matched with a set of prepositions \citep{blake2012hbocas}. By this, concrete grammatical functions are created. Traditionally, case is therefore grasped as a system of inflectional markings; one would talk about \textit{inflectional case}. This approach leads to a morphologically oriented definition as inflection is accomplished by appending morphological affixes \citep{blake1994case}. 
+However, in several languages like Japanese, only a system of adpositions is used to indicate case functions. Instead of inflection, \textit{case} is concretely marked in Japanese by a larger system of prepositions without a morphological extension of nominals \citep{blake2012hbocas}. The introductory definition becomes even more imprecise for languages like present day English that mainly use the word order as a third alternative of marking \textit{case}. Admittedly, this only allows a differentiate between syntactic functions like subject as well as direct and indirect objects from which the specific cases need to be concluded in a further step. At this point, it therefore seems rather insufficient to define the display of \textit{case} by its marking via grammatical morphemes only. However, as \citet{blake1994case} indicates, it has been found that the concrete cases of nominals which were given through the word order are similar to the ones that could have been extracted if they showed morphological inflection. On top of that, morphological case marking is supported by adpositions in several languages. Hence, presenting morphological case marking as the prevailing method of realizing case is justifiable.
+Overall, without adopting this assumption, this realization of \textit{case} provides an attractive mean to compare languages by distinguishing these three different types of its realization. 
+
+
+
+\section{A Brief Overview of Semantic Case Relations}
+
+When moving towards the grammatical relations expressed by \textit{case}, this firstly refers to basic syntactic categories like subject or direct and indirect object. Although \citet{blake1994case} indicates the presence of a few dependent nominals in certain languages without a grammatical reference, he classifies these syntactic categories as \textit{case functions}. Consecutively, this serves as a starting point to the phenomenon of \textit{case meanings}. With this, he refers to semantic relations like location or instrument that are similarly expressed by \textit{case}. The first analysis of these abstract semantic roles was presented in the case grammar approach by Charles Fillmore (see for example \citet{fillmore1987case} and \citep{cook1989case} for an overview). Initially, Fillmore carved out a set of thematic relations which he labeled alike to terms of traditional cases. However, he then switched to the semantically more transparent terms \textit{agent}, \textit{instrument}, \textit{experiencer}, \textit{object}, \textit{source}, \textit{goal}, \textit{place} and \textit{time} in order to describe syntactic-semantic relational cases which also fit a cross-linguistic analysis \citep{blake1994case}. Later, the term \textit{deep cases} as being delimited from traditional syntactic \textit{surface cases} has become common. Although \citet{haspelmath2012hbocas} prefers the less confusing term semantic roles instead of deep cases, this is not done in the following in order to maintain a clear differentiation to surface cases. According to a practical analysis of Fillmore's findings, \citet{blake1994case} indicates that for some cases like the instrumental or the locative, their grammatical function and semantic meaning coincide. By contrast, however, other syntactically combined roles like agent and patient need to be isolated by using semantic tests.
+
+Fillmore himself located his approach on a syntactic level, but already suggested the possibility of converting deep structure cases into surface representations by analyzing the means of affixation, suppletion and adpositions \citep{fillmore1987case}. For the first and partly the third of these vehicles, this implies an examination of morphological case markers, a procedure which is similarly indicated by \citet{butt2006case} and \citet{grimm2011semcas}. A concrete induction of deep cases, respectively semantic roles, has been conducted by \citet{cysouw2014cas} though a cross-linguistic analysis of case markers. By using parallel texts, semantic roles can be derived particularly well for languages with prominent case marking. Still, some semiotic issues like \textit{case polysemy} remain. Based on a comparison of the dative in Latin and Turkish, it becomes apparent that a range of meanings may be expressed by case \citep{haspelmath2012hbocas}. While \citet{grimm2011semcas} aims to solve this problem via relating case to the more abstract semantic level, the difficulty of \textit{case syncretism} needs to be solved. This denotes the possibility of several cases being indicated by only one marker \citep{baerman2012hbocas}.
+
+
+
+
+\section{Case Systems and Cases of World Languages}
+
+In order to introduce the different systems and labels that were used and are still common to categorize the comprehensive topic of case, it is useful to start with a classical approach again. Ancient Greek and Latin theorists developed the metaphorical notion \textit{oblique} for such cases that differ from the basic nominative form \citep{haspelmath2012hbocas}. This is especially useful for instances in which different formal properties are shared by the nominative and the other cases. Exemplary, this refers to a discrepancy of the nominative stem in Latin or a missing nominative case marker of German nouns. In two-case systems, the term \textit{oblique} case is also used as the opposite to the basic \textit{direct} case. \citet{blake2012hbocas} additionally indicates that oblique cases are often  complemented with prepositions, for example to express local meanings in ancient Greek. Even today, this systematic is still used in some grammars to describe phenomena of case.
+
+In his survey on case marking, \citet{blake1994case} introduces global case systems by differentiating the organization of core and peripheral relations. Whilst noun phrases in core relations are often unmarked, those in peripheral relations are classically marked by inflectional case, adpositions or both. The core grammar of a majority of the world's languages is the \textit{accusative system} in which the subject is encoded in the nominative and the indirect object in the accusative. If both cases are indicated, they often show the same marker. Otherwise, the nominative is usually unmarked. This holds true for most of the European languages as well as for Latin. A subordinate role which makes up for around twenty percent of the world's languages is taken over by the \textit{ergative system}. It is mainly used by languages in the Caucasian and Austronesian area of the world. Whilst the subject in the nominative is unmarked, the agent is a marked as the absolutive or ergative. Even though, both preceding systems are distinguished, a mixing is possible and frequent. This is what \citet{haspelmath2012hbocas} refers to when he indicates that both terms are only defined for idealized systems. 
+
+When it comes to interpreting  core relations, it becomes apparent that they mainly exist due to syntactic reasons with a semantic basis that is only implied. Generally, semantic roles are not exclusively marked on complements but primarily given by the meaning of the predicate. Although \citet{blake1994case} describes the core relation of accusative system as rather discourse pragmatic than semantically motivated, the nominative as the subject clearly describes the agent. Similarly, the accusative as the direct object bears semantic properties like the role of a patient or the effects on itself in case it is non-patient. A semantic basis of the ergative system is rather difficult to detect. Roughly, it is described as an entity that acts on or towards another entity which is not itself, complemented by the absolutive. Besides, a range of patients and a few agents may be encoded.
+
+When it comes to peripheral relations, these are mostly denoted by the dative, the genitive and other local cases. The dative as the case of the indirect object is rather unproblematic \citep{haspelmath2012hbocas}. As \citet{blake1994case} shows, its denotation as the 'giving case' results from ancient Greek \textit{didonai} and Latin \textit{dare}, verbs that translate to 'giving'. Since cases are not isomorphic across languages, the range that the dative covers in different languages varies. Similarly, it has a larger set of semantic functions that range from roles of purpose to possessor or destination. However, the main case to denote possession is the genitive which is widely spread amongst the world's language families. Its usage as a relative case is only marginal. Regarding local cases like the locative, ablative or allative, the relationship between case marking and semantic function is quite straightforward. Via these, notions concerning location, destination, source or path may be expressed. However, destination may also be taken over by the accusative, as in Latin, or the dative, as in Turkish. Such specific usages need to be analyzed based on concrete languages.  Larger case systems as in the Uralic family are usually based on a more detailed elaboration of local cases to which the aspect of relative orientation is added. Eventually, some further marginal cases should be mentioned. The instrumental, which is found in Indo-European and further smaller language families clearly indicates the instrument by which an action is carried out. The comitative case of Finnish, which expresses accompaniment, is also known as the sociative in Dravidian languages. Similarly in Finnish, the abessive, or also privative, denotes the 'lacking' or 'not having' of an object.
+
+Finally, \citet{blake1994case} rises the question of whether there is a concrete hierarchy amongst the presented inflectional cases. From a cross-linguistic perspective on non-isomorphic case systems, this is practically not possible as no case of one system completely corresponds to the same in the other. However, considering the mere functions of case, a hierarchy emerges for the majority of systems that is quite clear. As core functions, the nominative and the accusative or ergative are followed by the peripheral cases, the genitive and the dative. After these local cases, the ablative or instrumental and finally other cases are situated. If a language has a case to the end of that list, it has at least one of the previous cases as well. Additionally, the lowest case is usually used to fulfil a range of functions.
+
+
+
+
+\section{Language Typology and Case}
+
+Based on the final attempt of the previous section, this passage similarly aims to detect universals amongst languages concerning case. In more detail, the following considers the correspondences between case marking and language typology according to the landmark work of \citet{comrie1989typol}. Besides several holistic typologies, it is both the word order and  morphological typology that contribute the most to this approach. Based on these two, a classical differentiation between \textit{analytic} and \textit{synthetic} languages is drawn. In concrete, it is the word order that dictates the relations between the dependents of a sentence in analytic languages. In their most extreme specification, these languages are referred to as being \textit{isolating}. Ideally, they involve no diverse morphology so that a one-to-one correspondence holds between morphemes and words. Examples of such languages include Vietnamese and present day English. In contrast, the relations between dependents of a sentences are marked via morphological agglutination or inflection in synthetic languages. As being indicated in this defining sentence, this category may be further divided into two sub categories referred to as \textit{agglutinative} and \textit{fusional} languages. Before this further differentiation of synthetic languages is outlined in the following subsections, this passage is concluded by a critical view on the presented classical approach. 
+
+From a contemporary perspective, it becomes apparent that the classification is predominantly built on a selection of prototypical members that were be used to create the categories. However, as indicated throughout the theoretical expositions, many languages combine several of criteria when it comes to case. Additionally, \citet{bickelwals20} indicate that several variables are conflicted by the traditional classification. Therefore, they propose new criteria by which languages are to be typologized. These include the phonological fuison between case markers and their host words, formative exponence as the number of different categories that may be expressed by a case marker and flexivity which describes allomorphy and further inflectional categories \citep{bickelwals20}. Whilst these new criteria allow for a more precise distinction of languages, it is the traditional approach which is more suitable for this thesis by depicting concrete morphological case marking as the main criterion of linguistic similarities.
+
+
+\subsection{Agglutinative Languages}
+
+As results from the denotation of 'agglutinating', these languages are characterized by the fact that various affixes are glued on a nominal stem in order to create inflected word forms \citep{comrie1989typol}. As \citet{blake2012hbocas} indicates, it is possible to talk of clear stems, bases and case markers in such circumstances as these forms hardly change. \citet{comrie1989typol} furthermore points out to clear cut boundaries between morphemes of which one but mostly several form a word. A classic example of agglutinative languages is Turkish which appends case, number and possession marking suffixes to a nominal stem. Therefore, in such languages, case can be grasped and extracted in its most tangible form. Possible phonologically motivated changes due to different surroundings are still easily recognizable. Eventually, \citet{blake2012hbocas} also refers to the issue of very large case marker inventories that may result from further orientation markers attached to the case suffix in agglutinative languages. In this context, the case affix is to be seen as an infix.
+
+
+
+
+\subsection{Fusional Languages}
+
+Similarly indicated by its denotation, fusional languages are characterized by a fusion of different morphological categories into one word \citep{comrie1989typol}. No clear-cut boundary may be drawn between morphemes and similarly, the definition of stems as well as case markers is more problematic. As for example in Russian, the stem of a noun may coincide with its unmarked form of the nominative singular. However, in another declension class, the nominative singular may also be indicated by a case marker which was previously added to the unmarked form to represent the genitive. Moreover, the genitive marker of this declension class again represents the nominative plural of both classes. As this marker only consists of one letter, it is impossible to segment the morpheme into the two meanings that it expresses. The category case and number are fused into only one inflectional morpheme, a portmanteau morpheme. The example similarly indicates that it is fusional languages in which the problem of case syncretism needs to be dealt with.
+
+
+
+
+
+\section{A Linguistically and Computationally Sensible Definition of Case Markers}
+
+In the course of the previous sections, a central topic of \textit{case} was repeatedly mentioned but not yet considered in more detail. This last theoretical passage deals with the concrete marking of \textit{case} and aims to develop a both linguistically and computationally sensible definition for this operation. From a most basic point of view, \citet{moravcsik2012hbocas} refers to \textit{case markers} as formal devices associated with nominals or noun phrases that indicate their grammatical role according to the initial definition of \textit{case}. In a further step, she introduces the notion of \textit{segmented case morphemes} for such devices. These case morphemes may be realized as affixes, clitics, via stem modification or suppletion - concepts that are being presented throughout the following passage. At first, this agrees with the broad proposal of \citet{blake1994case} who defines case markers as affixes which can be separated from the stem of inflectable words. Again, he based this morphological approach on the classical ancient Greek and Latin case systems. In these, the case of core functions like subject and object is marked via suffixes. For peripheral relations like location or instrument, additional adpositions may be used as a further option. This overlap between adpositions and inflectional case markers is also generally indicated for further languages by \citet{haspelmath2012hbocas}. However, as adpositions are not part of each inflectional system on which this morphological definition builds, they are left out in the following. Additionally, they are not part of noun phrases that are under observation. In this context, the term \textit{case particles} is also rejected by \citet{haspelmath2012hbocas} as being contradictory. Particles are generally defined as words and not as inflectional elements. When it comes to clitics, these elements are closer connected to the nominals whose case they indicate. Although he refers to a certain indeterminacy in this context, clitics are also seen as suffix-like case markers. Overall, \citet{haspelmath2012hbocas} therefore talks of \textit{inflectional case exponents}. In a further step, \citet{blake1994case} highlights that it is not possible to isolate an affix from the basic morpheme of a word, usually the stem, for certain parts of speech of several languages. In these instances, the whole word form marks the case and is therefore seen as a case marker. However, in the following, this will not apply to instances of suppletion as it would be almost impossible to find all root variants of a word.
+
+Overall, the use of morphological affixes emerged as the main type of  case marking. This also follows the language typology approach by \citet{comrie1989typol} from which it becomes apparent that it is more precisely suffixes that mark case. This is based on the characteristic of agglutinative as well as fusional languages. For the former, however, suffixes may also turn into infixes when they are being followed by another inflectional category \citep{blake2012hbocas}. A possible fusion of these into a much more comprehensive set of case markers due to further appended orientation suffixes is rejected here due to the characteristics of agglutination. Additionally, a cross-linguistically survey on the type of case marking in the World Atlas of Language Structures (WALS) shows a great majority of case suffixes as compared to other affixes based on the analysis of nouns \citep{dryerwals51}. Yet, the somewhat problematic aspect of case syncretism remains when case markers are predominantly seen as suffixes (\citet{baerman2012hbocas} and \citet{blake1994case}). According to \citet{moravcsik2012hbocas}, the problem of similar orthographic spelling could be solved by using the category of suprasegmental case markers in which stress is used to indicate case. However, leading over to the last point of defining case markers, stress as a phonological criterion is usually not indicated in text, neither handwritten nor digital. Therefore, when it comes to the computationally sensible aspect that needs to be fulfilled, is is finally affixes, especially suffixes as well as clitics, and complete word forms that are defined as case markers in the following. Additionally, extracting such parts of words or complete words requires only rather basic computational operations.
+
+
+
+
+
+\chapter{A Methodology for Case Marker Extraction}
+
+This chapter shortly describes the concrete methodology by which case markers are extracted in the following to create a gold standard of multiple languages. Additionally, the selection of the analyzed languages is explained and justified.
+
+
+
+\section{Aspects of Manual Case Marker Extraction}
+
+Whilst comprehensive language traits concerning case marking have been presented theoretically in the previous chapter, this section explains the handling of language specifics for the following practical extraction of case markers. Most importantly, this describes both the inclusions and simplifications that will be made in the process. Essentially, this multilingual gold standard should be used to test the extracted case markers of various languages by the CaMEL algorithm of \citet{weissweiler2022camel}. Therefore, it is aimed to treat all languages as similarly as possible to receive a structurally identical product. This should also meet the requirements of a gold standard in terms of reliability, validity and sensibility. Given the following conditions, it is aimed to provide an accurate solution for performing the task. 
+
+For each language to be analyzed, at least two grammar books are used of which one clearly shows the morphological case marking. If the second work is not sufficient for checking all forms or if any differences emerged, further literature on the respective language is consulted. In order to ensure traceability of the collected case markers, it is mentioned in detail which grammar provides the basic knowledge and case morphemes as well as which is used to revise them afterwards. For each language, language specifics and the respective parts of speech are outlined in an initial overview. Then, the morphological case markers as defined previously are extracted from regular declension tables. A differentiation in terms of number is essential for fusional languages and therefore similarly conducted for agglutinative ones. Special forms that mostly originate from foreign words are left out whilst it is aimed to capture such that originate from phonetic or register based differences. Furthermore, all indicated more extensive and finer grained markers that result from fusion or joint elements between stem and marker are similarly extracted. This is to allow a more precise distinction of similarly marked cases. In the following tables in the text, affixed case markers are distinguished by a hyphen into pre-, in- and suffixes. 
+
+
+
+
+\section{A Selection of Inflectional Case Marking Languages}
+
+In order to describe the dimensions of multilinguality in which the gold standard is to be created, the selection of languages is initially limited to such that are available in the Parallel Bible Corpus (PBC) by \citet{mayer-cysouw-2014-creating}. This parallel corpus is necessary for the \textit{CaMEL} algorithm that builds on the parallel extraction of noun phrases \citep{weissweiler2022camel}. Whilst some languages are already excluded in the paper, the following presents further analyses that limits the suitable languages and leads to the final selection. 
+At first, all possible languages have been classified according to their language families and language genera by using their exact ISO encoding in the PBC and the WALS \citep{wals}. Then, if specified, a more detailed analysis according to their number of cases as described in \citet{iggesenwals49} and the position of their case affixes as examined by \citet{dryerwals51} was conducted. For both articles, however, it has to be mentioned that the focus was placed on nouns only. Based on these analyses, it becomes clear that most suitable languages belong to the Indo-European family. This holds true for Latin as well which is, although being a dead language, initially analyzed in the following practical part. The main reason for this results from its major influence on the emergence of the case (marking) theory. Due to similar arguments, Modern Greek as a Greek language is chosen. Although it lost one of the Ancient Greek cases, it can still be compared to its predecessor. Hereafter, German and Russian are analyzed as being the main representatives in terms of case marking and distribution of the Germanic and Slavic language genera. Whilst there is a certain similarity between all Slavic languages, the other representatives of the Germanic group are becoming less inflectional. This is already reality in Romance languages which do not use any inflectional case marking at all and are therefore not suited for the following analysis. Since the four presented languages are all fusional, it is aimed to incorporate further agglutinative languages into the standard. Therefore, Turkish and Finnish were selected as the main representatives of the Altaic and Uralic language family. Amongst the Turkic language genus, all members show a similar case marking behaviour. Turkish, however, is the most common of these. The situation of Finnish in the Finno-Ugric languages is alike. As \citet{blake1994case} additionally indicates, these languages distinguish the most cases of world languages with around a dozen. This makes them especially interesting for the possibility of analyzing underlying deep cases. Overall, it was aimed to select prominent case marking languages for which a closer connection between case markers and semantic relations is expected. Further alternative languages with a suitable inflectional behavior will be set out in the conclusion
+
+
+
+
+\chapter{Practical Extraction and Collection of Multilingual Case Markers}
+
+In this practical chapter, the presented methodology of case marker extraction is applied to the chosen languages. These are structured according to language families. Language specific details are given at the beginning of the respective subsection. Then, for each inflected part of speech, a table containing the paradigm of case markers is created. The final table appears at the appropriate place in the text after its creation has been outlined.
+
+
+\section{Indo-European Languages}
+
+In classic Indo-European languages, case markers cannot always be linearly separated from a concrete stem \citep{blake1994case}. This results from their fusional character which is typical for the language family. Therefore, the outline of case marking morphemes as indicated in the considered grammar works will be followed. If no clear stem can be separated or only full word forms are given, these are taken over into the paradigm as such. \citet{blake1994case} states in this regard that stem and case are ultimately united in Indo-European pronouns. Accordingly, the tables of this part of speech will be quite comprehensive.
+
+
+
+
+
+\subsection{Latin}
+
+In the process of theoretically analyzing case, Latin serves as a classical example of morphological case marking in several basic works. However, \citep{blake2012hbocas} also indicates that due to a partially stronger fusion of stems and inflectional endings, the boundary between these two morphemes is not always as clear as theoretically presented. A similar opinion is stated by \citet{embick2005status} who argue that considering stems in Latin is actually unmotivated and problematic. 
+This becomes practically evident when different Latin grammars are approached. \citet{panhuis2015lat} similarly points out to this problem but still tries to solve it according to theoretical morphology. He argues that Latin case markers as grammatical affixes are attached to the stem of nominals as declension endings. Though, when it comes to separating the stem, his argumentation becomes rather cumbersome. In order to recognize this unit, the genitive plural markers \textit{-um} or \textit{-rum} need to be removed from this form. In concrete, the stem of \textit{rosarum} would be \textit{rosa}. However, problems appear when the form of the dative and ablative plural, \textit{rosis}, is compared to this. It becomes quite obvious that the final sound of the stem, which also determines a words declension class, was either lost or replaced by the case marker \textit{-is}. Similar issues occur in the singular, in which \textit{rosa} would be used for the nominative, the vocative and, with a stressed \textit{-a}, also for the ablative. As previously outlined, such fine grained differences cannot be differentiated. Furthermore, this is just as problematic in other declension classes as well. 
+
+Therefore, in order to develop a computationally process-able paradigm of Latin case markers, \citet{rubenbauer1995lat} is used to clarify the basic morphological foundations of this dead language. According to this rather classical source, inflexible Latin words consist of a usually monosyllabic root, a hardly changed sequence of sounds common to a word family. Together with a sound or sequence of sounds Rubenbauer calls a 'suffix', a stem is built that contains concrete meaning. Finally, by a further sound or a sequence of sounds he refers to as an 'ending', a grammatically complete word is composed. Usually, with root, 'suffix' and 'ending', all three components are put together but a few root words without a 'suffix' also exist. For these special words it is rather problematic to identify the declension class as it is the 'suffix' sound which determines this \citep{rubenbauer1995lat}. In this instance he therefore also refers to the form of the genitive plural in which the sound of a 'suffix' always comes out clearly.  According to this, the simplest systematic of showing the Latin inflection is by presenting a word split into its root and a case marker which consist of both parts that Rubenbauer calls 'suffix' and 'ending'. In usual words, when both come together, transformations occur in which a clear separation is no longer possible. As theoretically outlined, a fusion of the case marker takes place. This differentiation is also used in a third grammar of Latin by \citet{touratier2013lat} and corresponds to the way in which the Latin declension is taught to students. Therefore, Latin case markers as indicated in these two grammars are considered.
+
+In terms of inflectible parts of speech, nouns, adjectives, numerals and pronouns need to be analyzed. Latin does not know any kind of article \citep{panhuis2015lat}. Usually, the double number of singular and plural is distinguished. Dual forms like \textit{ambo} 'both' decline like respective adjectives or numerals. Latin also distinguishes three grammatical genders. Both categories have a major influence on the shape of the case marker. However, it is only number which needs to be distinguished in the following. In terms of gender, masculine and neuter often coincide.
+
+When it comes to concrete cases, Latin distinguishes between the nominative, vocative, genitive, dative, accusative and the ablative. Of these, the vocative, also called salutation case, is striking. Except for the form of the o-declension class it resembles with the nominative. Particularly interesting in terms of meaning is the merging of the archaic instrumental and the locative that are now expressed by the ablative. Partly, the latter one is also taken over by the genitive \citep{panhuis2015lat}. Additionally, the accusative is used to state the function of destination. In this context it is then governed by prepositions like \textit{in} \citep{blake1994case}. Correspondingly, analyzing these cases plays a key role to detect  semantic relations in the structure of Latin sentences. However, this is complicated by the coincidence of the forms of the dative and ablative plural in all declensions.
+
+
+
+
+\subsubsection{Latin Nouns}
+
+As mentioned throughout the previous description, Latin nouns are grouped into five different declension classes that are named according to the five stem vowels or, if this ends on a consonant, generally 'consonantal'. This last class is being grouped together with the i-declension. Each declension class also has a certain characteristic in terms of gender. However, this category is summed up in the following paradigm displayed in Table \ref{table:latin_nouns}. In particular, this shows the Latin nominal case markers that follow the regular five declension classes as given in \citet{touratier2013lat}. All forms are revised by using \citet{rubenbauer1995lat} as a second source. Possible markers that build on ancient Greek loan words are left out of the paradigm. It becomes apparent that even though case markers are broadly defined in both grammars, an unmarked form appears for nouns of the consonantal declension in the nominative singular. For all other forms, concrete case markers are provided. The vocative corresponds to the nominative for all declensions except for masculine nouns in the o-declension in which it is \textit{-e}. At a closer look, the relation \citet{rubenbauer1995lat} describes as root words that do not have a 'suffix' emerges. For example, the dative or ablative plural \textit{-bus} lacks such a sound that is present in the usual endings \textit{-ibus} and \textit{-ebus}.
+
+
+\begin{table}[!htbp]
+\centering
+
+\begin{tabular}{|p{2,5cm}||p{5cm}|p{5cm}|} 
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & -a, -us, -um, -is, -s, -e, -o, \par  -u, -es & -ae, -i, -a, -es, -ia, -us, -ua \\ [1ex]
+ \hline
+ Vocative & -a, -e, -um, -is, -s, -us, -u, -es & -ae, -i, -a, -es, -ia, -us, -ua \\ [1ex]
+ \hline
+ Genitive & -ae, -i, -is, -us, -ei & -arum, -orum, -um, -ium, \par -m, -uum, -erum \\ [1ex]
+ \hline 
+ Dative & -ae, -o, -i, -ui, -u, -ei & -is, -ibus, -bus, -ebus  \\ [1ex]
+ \hline
+ Accusative & -am, -um, -em, -e, -im, -u & -as, -os, -a, -es, -is, -ia, -us, \par -ua  \\ [1ex]
+ \hline
+ Ablative & -a, -o, -e, -i, -u & -is, -ibus, -bus, -ebus \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of Latin Nominal Case Markers}
+\label{table:latin_nouns}
+\end{table}
+
+
+
+\subsubsection{Latin Adjectives}
+
+In this section, the case markers of Latin adjectives are under observation.
+\citet{touratier2013lat} differentiates two groups of adjectives according to their resemblance to the nominal a- and o- as well as the i- and consonantal declension classes. This is also referred to as the first and the second class, a term that is necessary for describing the case marking of pronouns later on. Overall, the adjectives follow the rules and case markers of Latin nouns according to the given declension class. This also includes the vocative. The special marker \textit{-e} does appear due masculine nouns of the o-declension but also because it is an ending of the nominative singular in the i-declension. Whilst members of this second class show two different endings in terms of gender, the first class indicates all three genders. However, as for the paradigm in Table \ref{table:latin_adjectives}, these formes are summed up. All forms of the regular declension indicated by \citet{touratier2013lat} can also be found in \citet{rubenbauer1995lat}.
+
+\begin{table}[!htbp]
+\centering
+
+\begin{tabular}{|p{2,5cm}||p{5cm}|p{5cm}|}
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & -us, -a, -um, -is, -e, -s & -i, -ae, -a, -es, -ia \\ [1ex] 
+ \hline
+ Vocative & -us, -a, -um, -is, -e, -s & -i, -ae, -a, -es, -ia \\ [1ex] 
+ \hline
+ Genitive & -i, -ae, -is & -orum, -arum, -ium, -um \\ [1ex]
+ \hline 
+ Dative & -o, -ae, -i & -is, -ibus  \\ [1ex]
+ \hline
+ Accusative & -um, -am, -em, -e, -s & -os, -as, -a, -es, -is, -ia  \\ [1ex] 
+ \hline
+ Ablative & -o, -a, -i, -e & -is, -ibus \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of Latin Adjectival Case Markers}
+\label{table:latin_adjectives}
+\end{table}
+
+
+
+
+\subsubsection{Latin Numerals}
+
+When it comes to Latin numerals, these are to be differentiated in cardinal and ordinal numbers \citep{rubenbauer1995lat}. Both are similarly inflected as based on the adjectives of the a- and o-declension. In the following, their paradigm in Table \ref{table:latin_numeralss} is built from these adjectival markers and the concrete forms given in \citet{rubenbauer1995lat}. Whilst \textit{unus, -a, -um}, 'one', represents the forms of the singular, \textit{duo, -ae}, 'two', and \textit{tres, -ia}, 'three', are added to the plural column. All of these forms are also presented in \citet{panhuis2015lat}.
+
+\begin{table}[!htbp]
+\centering
+
+\begin{tabular}{|p{2,5cm}||p{5cm}|p{5cm}|}
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & -us, -a, -um  & -i, -ae, -a, -o, -es, -ia \\ [1ex] 
+ \hline
+ Vocative & -e, -a, -um & -i, -ae, -a, -o, -es, -ia \\ [1ex] 
+ \hline
+ Genitive & -i, -ae, -ius & -orum, -arum, -ium  \\ [1ex]
+ \hline 
+ Dative & -o, -ae, -i  & -is, -obus, -abus, -ibus  \\ [1ex]
+ \hline
+ Accusative & -um, -am  & -os, -as, -a, -o, -es, -ia   \\ [1ex] 
+ \hline
+ Ablative & -o, -a  & -is, -obus, -abus, -ibus  \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of Latin Numeral Case Markers}
+\label{table:latin_numeralss}
+\end{table}
+
+
+
+
+\subsubsection{Latin Pronouns}
+
+This section aims to build a processable paradigm of Latin pronominal case markers. It roughly follows the order given in \citet{touratier2013lat} and is being checked on or also possibly expanded by forms given in both \citet{rubenbauer1995lat} and \citet{panhuis2015lat}. Starting with the personal pronouns \textit{ego}, \textit{tu}, \textit{nos}, \textit{vos} and the reflexive forms \textit{se} in the third person, a problem concerning the definition of case markers as suffixes arises. Especially due to the differences in the nominative and dative forms, for example between \textit{ego} and \textit{mihi} in the first person, a clear regularity of splitting the personal pronouns into a basic root and suffixing case markers cannot be found. Therefore, all distinct word forms, are added to the paradigm in Table \ref{table:latin_pronouns}. Similarly, varied spellings that for example concern the second person plural of the personal pronoun are incorporated. For these, \citet{touratier2013lat} still displays the outdated form \textit{uos} in comparison to the modern notation \textit{vos} being used in the two other works. Concerning the ablative, the latter grammars also mention the possibility of the post-position \textit{cum} being attached to personal pronouns. These forms are also added to the table whilst the preposition \textit{a} which can precede the ablative as indicated in \citet{rubenbauer1995lat} is left out. As theoretically indicated, prepositions may indicate a certain case but are not part of the inflectable word classes as being examined here. 
+
+Comprehensively, the pronominal vocative forms are not displayed in the declension tables of all three grammars; only  existing special variants, as for the personal pronouns \textit{tu} or \textit{vos} in the second person singular respectively plural, are given separately \citep{panhuis2015lat}. Therefore, no distinction of the vocative will be made for Latin pronouns. All three grammars also mention the possibility of reinforced personal pronouns with attached particles like \textit{-met}, \textit{-te}, \textit{-pte} or \textit{-se}. As these special forms are not fully described for all cases, they are also left out of the paradigm.
+
+The possessive pronouns \textit{meus, -a, -um}, \textit{tuus, -a, -um}, \textit{suus, -a, -um} in the singular and  \textit{noster, -tra, -trum} and \textit{vester, -tra, -trum} in the plural inflect like the previously described adjectives of the a- and o-declension class \citep{rubenbauer1995lat}. Due to this regularity, only these case markers are added to Table \ref{table:latin_pronouns}. \citet{rubenbauer1995lat} also indicates \textit{mi} in the masculine singular as a further special form of the vocative. 
+
+When moving on to the Latin relative pronoun \textit{qui}, \textit{quae}, \textit{quod}, 'which', a similar regularity in terms of case marking as with the adjectival declension can be seen. However, the genitive form \textit{cuius} and the dative \textit{cui} in the singular fall off the grid. Therefore, the whole paradigm is added to Table \ref{table:latin_pronouns}. The forms of the interrogative determinative \textit{qui}, \textit{quae}, \textit{quod} perfectly agree with these. The interrogative pronouns \textit{quis}, 'who', \textit{quid}, 'what', limited to the singular, only vary in these two nominative forms which are therefore added to Table \ref{table:latin_pronouns} as well. At the same time, these forms correspond to the enclitic indefinite pronoun \textit{quis}, \textit{quid}. However, the enclitic indefinite determinative \textit{qui}, \textit{quae}, \textit{quod} shows a new form, \textit{qua}, in the nominative singular as well as the nominative and accusative plural. Having added these forms to Table \ref{table:latin_pronouns}, regular endings for the indefinite pronoun \textit{aliquis}, \textit{aliquid} and the indefinite determinative \textit{aliqui}, \textit{aliqua}, \textit{aliquod} could be found in the so far created paradigm on a possible root \textit{ali-}. However, these forms represent a fixed word and not, as needed, a suffixed marker. Therefore, they are added to Table \ref{table:latin_pronouns} marked as suffixes. 
+
+ A special situation of Latin case marking appears when it comes to a further group of indefinite pronouns respectively indefinite determinatives. When looking at the nominative forms of \textit{quisquam} 'anoyone', \textit{quicumque}/\textit{quaecumque}/\textit{quodcumque} 'whoever', \textit{quidam}/ \textit{quaedam}/\textit{quoddam} 'some', \textit{quilibet}/\textit{quaelibet}/\textit{quidlibed}/\textit{quodlibet} 'everyone', \textit{quiuis}/\textit{quaeuis}/ \textit{quiduis}/\textit{quoduis} 'anyone', and \textit{quisque}/\textit{quidque}/\textit{quaeque}/\textit{quodque} 'everyone', it becomes apparent that their case is marked  almost congruent with the indefinite pronoun \textit{quis}/\textit{quid} respectively the indefinite determinative \textit{qui}/\textit{quae}/\textit{quod}. However, this is now realized as a prefix. In order to include this special case to the paradigm, these pronominal forms and some special variants are added to Table \ref{table:latin_pronouns} as prefixes.
+The indefinite pronoun \textit{quisquam}, 'everyone', exclusively used in negated sentences and the singular, has an additional neuter form \textit{quicquam} used in the nominative and accusative. The accusative singular of \textit{quidam} is \textit{quendam} or \textit{quandam} and the genitive plural similarly \textit{quorundam} or \textit{quarundam}. 
+The dublication of \textit{quis} and \textit{quid}, \textit{quisquis} and \textit{quidquid}, can now be derived from the paradigm as being inflected either by prefixes or suffixes. However, only a further genitive form, \textit{cuiuscuius} is given in \citep{touratier2013lat}.
+A double special case, \textit{unusquisque}, 'all', is indicated by \citep{rubenbauer1995lat}.
+
+When it comes to the Latin demonstrative pronouns \textit{hic}/\textit{haec}/\textit{hoc}, \textit{iste}/\textit{ista}/\textit{istud} and \textit{ille}/\textit{illa}/\textit{illud}, all 'this', a possible common prefix over all declension forms can be found with \textit{ist-} and \textit{ill-} for the two latter ones. Whilst some endings resemble those of the adjectival declension already in the paradigm, new markers for the nominative, genitive, dative and accusative singular are added. For  \textit{hic}/\textit{haec}/\textit{hoc}, the question arises whether the letter \textit{h} can be seen as the stem or not. However, since the forms already differ in the nominative, all these pronominal forms are added to Table \ref{table:latin_pronouns}. By this, the suffixes of the pronoun \textit{ipse}/\textit{ipsa}/\textit{ipsum} based on \textit{ips} can already be found there. This is also due to the fact that, even though it is classified as a pronoun, it can pass into the class of adjectives \citep{touratier2013lat}.
+
+The pronoun \textit{is}/\textit{ea}/\textit{id}, 'this/that' can either be used as the non-reflexive form of the personal pronoun in the third person but also as an anaphoric demonstrative pronoun \citep{touratier2013lat}. Again, as no clear root can be separated, its complete forms are added to Table \ref{table:latin_pronouns}. In the nominative, dative and ablative plural, \textit{ei}/\textit{eis} can also be spelled as \textit{ii}/\textit{iis} or even be more contracted to only \textit{i}/\textit{is}. The pronoun of identity, \textit{idem}/\textit{eadem}/\textit{idem}, 'the same', uses the forms just described almost equally as a prefix by simply attaching \textit{-dem} in every case. Therefore, together with special cases as in the nominative and accusative singular or the genitive plural, they are added as such to Table \ref{table:latin_pronouns}.
+
+\citep{touratier2013lat} concludes with a last group of pronominal adjectives that are partly indefinite pronouns or adjectives. Apart from the genitive and dative singular on \textit{-ius} and \textit{-i}, their other forms correspond again to those of the adjectival declension in the first class. Accordingly, all case markers for \textit{alter, -a, -um} 'other, \textit{uter, -tra, -trum} 'which', \textit{neuter, -tra, -trum} 'none', \textit{alius, -a, -ud} 'another', \textit{nullus, -a, -um} 'none', \textit{totus, -a, -um} 'whole', \textit{solus, -a, -um} 'alone' and \textit{unus, -a, -um}, 'one', are already part of Table \ref{table:latin_pronouns}.
+
+Finally, the declension of the pronouns \textit{nemo} and \textit{nihil} is characterized by various special cases in which forms of \textit{nullus, -a, -um} have been adapted. Whilst \textit{nihil} only appears in the nominative and accusative singular, parallel forms of \textit{nemo} and \textit{nullus, -a, -um} are possible in the genitive, dative and accusative. All these special forms are added to Table \ref{table:latin_pronouns} in their full version as being found in \citet{rubenbauer1995lat} and c\citet{touratier2013lat}.
+
+
+\begin{table}[!htbp]
+\centering
+
+\begin{tabular}{|p{2,5cm}||p{5cm}|p{5cm}|}
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & ego, tu, -us, -a, -um, qui, quae, quod, quis, quid, qua, -quis, -quid, -qui, -qua, \par -quod, quis-, quid-, qui-, \par quae-, quod-, quic-, -e, -ud, hic, haec, hoc, is, ea, id, i-, ea-, uter-, utra-, utrum-, nihil, nemo  & nos, vos, uos, -i, -ae, -a, qui, quae, qua, -qui, -quae, -quod , qui-, quae-, hi, hae, haec, ei, ii, i, eae, ea, i-, ii-, eae-, ea-, utri-, utrae-, utra- \\ [1ex]
+ \hline
+ Genitive & mei, tui, sui, -i, -ae, cuius,  \par -cuius, cuius-, -ius, huius, eius, eius-, utrius-, neminis & nostri, nostrum, vestri, vestrum, uestri, uestrum, -orum, -arum, quorum, quarum, -quorum, -quarum, quorum-, quarum-, \par quorun-, quarun-, horum, \par horunc, harum, harunc, \par eorum, earum, eorun-, earun-, utrorum-, utrarum- \\ [1ex]
+ \hline 
+ Dative & mihi, tibi, sibi, -o, -ae, cui, \par -cui, cui-, -i, huic, ei, ei-, utri-, nemini & nobis, vobis, uobis, -is, quibus, -quibus, quibus-, his, eis, iis, is, eis-, iis-, \par is-, utris-  \\ [1ex]
+ \hline
+ Accusative & me, te, se, -um, -am, \par quem, quam, quod, \par -quem, -quid, -quam, -quod, \par quem-, quid-, quam-, \par quod-, quic-, quen-, quan-, \par -um, -ud, hunc, hanc, hoc, eum, eam, id, eun-, ean-, i-, utrum-, utram-, nihil, \par neminem & nos, vos, uos, -os, -as, \par -a, quos, quas, quae, qua, \par -quos, -quas, -qua, quos-, quas-, quae-, -ud, hos, has, haec , eos, eas, ea, eos- , \par eas-, ea-, utros-, utras-, utra-  \\ [1ex]
+ \hline
+ Ablative & me, te, se, mecum, tecum, \par secum, -o, -a, quo, qua, \par -quo, -qua, quo-, qua-, hoc, hac, eo, ea, eo-, ea-, utro-, utra-  & nobis, vobis, uobis, \par nobiscum, vobiscum, \par uobiscum, -is, quibus, \par -quibus, quibus-, his, eis, iis, is, eis-, iis-, is-, utris- \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of Latin Pronominal Case Markers}
+\label{table:latin_pronouns}
+\end{table}
+
+\newpage
+
+
+
+
+\subsection{Modern Greek}
+
+Besides Cypriot Greek, Modern Greek represents the only member of the Greek language genus in the Indo-European family. It derives from ancient Greek, one of the two classical languages on which most of the theoretical foundations of the presented case theory are based. That is why Modern Greek shows inflectional endings that indicate the categories case, number and gender as one suffix, representing a synthetic, in more detail a fusional language \citep{holton2016greek}. As for most of these languages, some nouns, pronouns and determiners only exist in the singular or the plural. The majority, however, covers both numbers. From this it becomes apparent that Modern Greek lost the dual. Furthermore, in comparison to ancient Greek, modern Greek only differentiates four cases. These are applied to the parts of speech used in noun phrases, i.e. nouns, adjectives, numerals, pronouns and determiners \citep{holton2016greek}.  The functions of the dative have mostly been taken over by the genitive and its form resembles the accusative \citep{metger1998greek}. However, the genitive that is used for possession, dimensions and as an attribute is used only infrequently. As in Latin, the vocative is mostly consistent with the nominative that indicates the subject and therefore the agent in a sentence. Next to it, the accusative denoting the patient is the most frequent case. 
+
+In the following analysis of case markers, the comprehensive grammar by  \citet{holton2016greek} takes the key position. Additionally, the short grammar by \citet{metger1998greek} is taken for an overview whilst the extracted case markers are reviewed with the help of the more detailed work by \citet{ruge2001greek}. This does not clearly display case endings but full word forms from which they are to be derived.
+
+
+
+\subsubsection{Modern Greek Nouns}
+
+Instead of clear declension classes like given in Latin, Modern Greek nouns are primarily classified according to their gender and the form of their nominative singular which indicates the correct declension in the most instances \citep{holton2016greek}. From this, several further rules regarding the two mentioned criteria may be set up to explain at least a rough system. From this should be highlighted that, with exceptions, the same markers are used in the genitive and accusative singular of masculine nouns and in the nominative and accusative singular and plural of feminine and neuter nouns \citep{holton2016greek}.
+
+In order to create the paradigm of Greek nominal case markers, the final and comprehensive declension table in \citet{holton2016greek} was used as a basis. The missing forms of the vocative of feminine and neuter nouns have been supplemented according to the information in the text. They correspond predominantly to the nominative forms. Although \citet{holton2016greek} specifies that the genitive plural of all Greek nouns ends in \foreignlanguage{greek}{\textit{-ων}}, the paradigm in Table \ref{table:greek_nouns} shows several finer grained markers that are extended to the stem. These can also be found in a more simpler paradigm of Greek nominal declension given in \citet{metger1998greek}. When the forms were finally reviewed by using \citet{ruge2001greek}, it becomes clear that the more extensive forms result from alternations in the final sound of the stem. In order to follow the definition of case markers as grammatical morphemes that are added to the stem, these forms were added completely to Table \ref{table:greek_nouns}. By adding these diverse forms it is aimed to refine the extraction of a specific case. 
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|p{3cm}||p{5cm}|p{5cm}|}
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & \foreignlanguage{greek}{-ος, -ης, -ας, -ες, -ους, -εας, \par -ου, -η, -α, -ω, -ι, -ο, -μα, -ιμο} & \foreignlanguage{greek}{-οι, -ες, -εις, -ηδες,  -αδες, -εδες, -ουδες, -α, -ια, -η, -ματα, -ιματα}  \\ [1ex]
+ \hline
+ Accusative & \foreignlanguage{greek}{-ου, -ο, -η, -α, -ε, -εα, -ω, -ι, -ο, -μα, -ιμο} & \foreignlanguage{greek}{-ους, -ες, -εις, -ηδες, -αδες, \par -εδες, -ουδες, -α, -ια, -η, -ματα, -ιματα} \\ [1ex]
+ \hline
+ Genitive & \foreignlanguage{greek}{-ου, -ο, -η, -α, -ε, -εα, -ας, -ης, -εως, -ους, -ως, -ιου, -ματος, \par -ιματος } & \foreignlanguage{greek}{-ων, -εων, -ηδων, -αδων, -εδων, -ουδων, -ιων, -ματων, -ιματων} \\ [1ex]
+ \hline
+ Vocative & \foreignlanguage{greek}{-ου, -ο, -η, -α, -ε, -εα, -ω,  -ι, -μα, -ιμο} & \foreignlanguage{greek}{-οι, -ες, -εις, -ηδες,  -αδες, -εδες, -ουδες, -α, -ια, -η, -ματα, -ιματα} \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of Modern Greek Nominal Case Markers}
+\label{table:greek_nouns}
+\end{table}
+
+
+\subsubsection{Modern Greek Adjectives}
+
+As in ancient Greek and Latin before, Modern Greek adjectives modify nouns and are used either attributively or predicatively \citep{holton2016greek}. Thereby, they also need to agree with the noun to be described in case, number and gender. In comparison to German, it is also possible to place the adjective after the noun to give it a special emphasis. If the noun is preceded by an article, this needs to be put before the adjective as well. Due to the inflection for the three possible categories, the paradigm of their case markers in Table \ref{table:greek_adjectives} is correspondingly extensive. Furthermore, since no comprehensive table of the adjectival declination is given in all three consulted grammars, the paradigm consists of the manually extracted markers from the example tables of complete word forms in \citet{holton2016greek}. The grammar follows the order of presenting the adjectives according to their endings in the nominative singular. At first, the category of adjectives on \foreignlanguage{greek}{\textit{-ος, -η, -ο}} which includes numerous words and also follows the nominal declension is given and added to Table \ref{table:greek_adjectives}. Adjectives on \foreignlanguage{greek}{\textit{-ος, -α/-ια, -ο}} only differ from these in the feminine singular. Such new markers are now and in the following always automatically added to the paradigm. This is consequently done for adjectives on \foreignlanguage{greek}{\textit{-υς, -ια, -υ}} that have slightly different masculine and neuter forms. Similar to these are adjectives on \foreignlanguage{greek}{\textit{-ης, -ια, -ι}} that are spelled slightly different. Adjectives on \foreignlanguage{greek}{\textit{-ης, -ες}} have one set of forms for masculine and feminine but their markers are already part of the paradigm. A further group of adjectives can be classified according to their neuter ending on \foreignlanguage{greek}{\textit{-ικο}}. Even though some cases follow the basic nominal declension, it shows various new forms that are consequently added to Table \ref{table:greek_adjectives}. A rather small group of adjectives ends on \foreignlanguage{greek}{\textit{-ωυ, -ουσα, -ου}}. Though, their forms are added to the paradigm as their representatives are frequently used. Finally, Modern Greek also knows some adjectives that do not decline. As in other languages, they are predominantly loan words \citep{holton2016greek}. The resulting paradigm is conclusively reviewed by using \citet{metger1998greek} and \citet{ruge2001greek} as far as possible. While no different forms were found, \citet{ruge2001greek} points out that most of the more extensive markers inserted at the end are taken over from ancient Greek participles. In both grammars, they are part of the adjective declension and therefore also in Table \ref{table:greek_adjectives}.
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|p{3cm}||p{5cm}|p{5cm}|}
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & \foreignlanguage{greek}{-ος, -η, -ο, -α, -ια, -υς, -υ, -ης, -ι, -ες, -ας, -ου, -ικο, -αδικο, \par -ων, -ουσα, -ον } & \foreignlanguage{greek}{-οι, -ες, -α, -ιοι, -ιες, -ια, -εις, -η, -ηδες , -ικα, -αδες, -ουδες, -αδικα, -οντες, -ουσες, -οντα}  \\ [1ex]
+ \hline
+ Accusative & \foreignlanguage{greek}{-ο, -η, -α, -ια, \par -υ, -η, -ι, -ες, -ου, -ικο, -αδικο, -οντα, -ουσα, -ον } & \foreignlanguage{greek}{-ους, -ες, -α, -ιους, -ιες, -ια, \par -εις, -η, -ηδες , -ικα, -αδες, \par -ουδες, -αδικα, -οντες, -ουσες, -οντα } \\ [1ex]
+ \hline
+ Genitive & \foreignlanguage{greek}{-ον, -ης, -ας, -ιας, -ιου, -υ, -η, -ι, -ονς, -ικον, -αδικου, -οντος, -ουσας } & \foreignlanguage{greek}{-ωυν, -ιων, -ηδων , -ικων, \par -αδων, -ουδων, -αδικων, \par  -οντων, -ουσων } \\ [1ex]
+ \hline
+  Vocative & \foreignlanguage{greek}{-ε, -η, -ο, -α, -ια, -υ, -η, -ι, -ικο, -αδικο, -ων, -ουσα, -ον} & \foreignlanguage{greek}{-οι, -ες, -α, -ιοι, -ιες, -ια, -ηδες , -ικα, -αδες, \par -ουδες, -αδικα, -ουτες, -ουσες, -ουτα } \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of Modern Greek Adjectival Case Markers}
+\label{table:greek_adjectives}
+\end{table}
+
+
+
+
+\subsubsection{Modern Greek Numerals}
+
+Modern Greek declines cardinal numerals. Table \ref{table:greek_numerals} builds on the markers shown by \foreignlanguage{greek}{\textit{ενας, τρεις} and \textit{τεσσερις}} 'one', 'three' and 'four' as presented in \citet{holton2016greek}. These basic numerals cover all case markers of further higher numbers. However, no distinction between singular and plural is made in all three grammars and no vocative is given. According to their semantic meaning, the singular forms are therefore only covered by \foreignlanguage{greek}{\textit{ενας}} 'one' whilst the plural forms result from \foreignlanguage{greek}{\textit{τρεις} and \textit{τεσσερις}}'three' and 'four'. The forms of all the hundreds and 'a thousand' follow the plural declension of Modern Greek adjectives on \foreignlanguage{greek}{\textit{-ος}} \citep{holton2016greek}. Therefore these are also added to Table \ref{table:greek_numerals}. Thousands, millions and billions, however, are written by the cardinal numbers already in the paradigm connected with the plural nouns denoting these sizes. As supported by \citet{ruge2001greek}, they are consequently not added to the paradigm.  
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|p{3cm}||p{5cm}|p{5cm}|}
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & \foreignlanguage{greek}{-ας, -α} & \foreignlanguage{greek}{-εις, -ις, -ια, -α, -οι, -ες}  \\ [1ex]
+ \hline
+ Accusative & \foreignlanguage{greek}{-α, -αν} & \foreignlanguage{greek}{-εις, -ις, -ια, -α, -ους, -ες } \\ [1ex]
+ \hline
+ Genitive & \foreignlanguage{greek}{-ος, -ας } & \foreignlanguage{greek}{-ων} \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of Modern Greek Numeral Case Markers}
+\label{table:greek_numerals}
+\end{table}
+
+
+
+\subsubsection{Modern Greek Articles}
+
+The paradigm of modern Greek definite and indefinite articles is based on the overview given in the three grammars mentioned above. In Table \ref{table:greek_articles}, the three genera to which they can be declined are again not differentiated but summarized. However, it has to be pointed out that the genus distinction of the definite article also happens in the plural as compared to other languages like German \citep{ruge2001greek}. In terms of case, there are no vocative forms of the Greek article \citep{ruge2001greek}. The Greek direct article is only used with proper nouns, i.e. names of persons, cities or countries and together with some pronouns that are being followed by a noun. No article is used for the main group of predicate nouns and such that describe clear causes \citep{metger1998greek}. Otherwise, the article needs to agree in case, number and gender with the noun it precedes \citep{holton2016greek}. 
+
+A special case concerning the possbility of expressing the dative is mentioned in \citet{metger1998greek}. As compared to nouns in which the function of the dative is taken over by the genitive, Modern Greek articles can be used to take over this function through a combination of the preposition \foreignlanguage{greek}{\textit{οε}} and the article in the accusative \citep{metger1998greek}. In the case of the definite article, both parts merge to one word form whilst in the indefinite expression, both parts stay separated. This contradicts with the initial definition of morphological case markers as affixes or single word forms. Additionally, the forms are also not mentioned in bot \citet{holton2016greek} and \citet{ruge2001greek}. However, as the indication of a dative function makes an important contribution to extract semantic roles from case markers, these forms are to be added to the paradigm of the dative. Therefore, the preposition is omitted and only the accusative forms as given in \citet{metger1998greek} are added to this column in Table \ref{table:greek_articles}. 
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|p{3cm}||p{5cm}|p{5cm}|}
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & \foreignlanguage{greek}{ο, η, το, ενας, μια, ενα} & \foreignlanguage{greek}{οι, τα}  \\ [1ex]
+ \hline
+ Accusative & \foreignlanguage{greek}{το, τον, τη, την, ενα, εναν, μια, μιαν} & \foreignlanguage{greek}{τους, τις, τα} \\ [1ex]
+ \hline
+ Genitive & \foreignlanguage{greek}{τον, της, ενος, μιας} & \foreignlanguage{greek}{των} \\ [1ex]
+ \hline
+ Dative & \foreignlanguage{greek}{οτο, οτον, οτη, οτην, ενα, εναν, μια} & \foreignlanguage{greek}{οτους, οτις, οτα} \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of Modern Greek Articles}
+\label{table:greek_articles}
+\end{table}
+
+
+
+
+
+\subsubsection{Modern Greek Pronouns}
+
+In this section, Modern Greek pronouns and determiners are analyzed for their case marking behaviour according to the given order in \citet{holton2016greek}. Initially, this grammar states that pronouns can stand instead of a whole noun phrase whilst determiners are words that modify nouns but do not belong to the class of adjectives, articles or numerals. Apart from the personal pronoun, most other pronouns can be used like this. 
+Personal pronouns also have another distinctive feature. They can be separated into weak forms which are used like clitics and emphatically used strong forms. Weak forms are fare more frequently but only used in a close connection to other words and even pronounced together with them. The nominative of the first and second person is taken over by the verb and therefore vacant. The genitive forms are commonly used as possessive pronouns. Table \ref{table:greek_pronouns} is filled beginning with those weak forms followed by their strong manifestations. Both are added as full word forms as no clear stem may be separated. Besides the strong form's function as subject or object, their primary usage is to distinguish persons from one another. 
+
+With \foreignlanguage{greek}{\textit{αυτος, τουτος} and \textit{εκεινος}}, Modern Greek uses three demonstratives that may be used as strong pronouns of the third person or as true demonstratives that translate to 'this' and 'that'. Since they are declined like adjectives on \foreignlanguage{greek}{\textit{-ος, -η, -ο}}, these suffix markers are added to Table \ref{table:greek_pronouns}. Apart from the weak form in the genitive which is used as the possessive pronoun, Modern Greek knows the emphatic possesive \foreignlanguage{greek}{\textit{δικος}} which can be both a pronoun as well as a determiner. In its strong form, it is connected with the genitive of the weak form to state a certain emphasis. Overall, however, it also declines like  adjectives on \foreignlanguage{greek}{\textit{-ος, -η, -ο}}. Since an alternative set of feminine forms that decline like  adjectives on \foreignlanguage{greek}{\textit{-ος, -ια, -ο}} is possible, these markers are also added to the paradigm. When it comes to the three Modern Greek interrogatives, \foreignlanguage{greek}{\textit{τι}} 'what' is indeclinable and \foreignlanguage{greek}{\textit{ποσος}} 'how much' declines again like  adjectives on \foreignlanguage{greek}{\textit{-ος, -η, -ο}}. Roughly, \foreignlanguage{greek}{\textit{ποιος}} 'who' also declines like  adjectives on \foreignlanguage{greek}{\textit{-ος, -α, -ο}} but shows some minor changes which are added to Table \ref{table:greek_pronouns}. 
+
+The Modern Greek indefinite pronouns and determiners can be split into specific and non-specific ones. Specific \foreignlanguage{greek}{\textit{κατι}} 'something' is indeclinable and denotes 'some' when used as a determiner of plural nouns. In contrast to this, \foreignlanguage{greek}{\textit{καποιος}} 'someone' declines like  adjectives on \foreignlanguage{greek}{\textit{-ος, -α, -ο}} and agrees with nouns when it accompanies them. The marker of the special form \foreignlanguage{greek}{\textit{καποιον}} of the accusative singular has already been added to the paradigm. Similarly, the non-specific indefinites \foreignlanguage{greek}{\textit{πιποτα}} 'any(thing)' and \foreignlanguage{greek}{\textit{πιποτε}} 'no(thing)' are indeclinable. However, \foreignlanguage{greek}{\textit{καυεις}} 'any(one)' and \foreignlanguage{greek}{\textit{καυεας }} 'no(one)' can be declined. Their markers, which only exist in the singular, are also added to Table \ref{table:greek_pronouns}. The basic Modern Greek relative pronoun \foreignlanguage{greek}{\textit{που}} 'who' is indeclinable and does not differentiate a denotation between humans or non-human objects. Besides this pronoun, relative clauses may also be introduced via the phrase \foreignlanguage{greek}{ο οποιος}. Since the declension of the pronoun \foreignlanguage{greek}{οποιος} follows the one of adjectives on \foreignlanguage{greek}{\textit{-ος, -α, -ο}}, its case markers are already part of the paradigm. Apart from some further indeclinable correlative pronouns, \foreignlanguage{greek}{οποιος, -α, -ο} 'whoever' and \foreignlanguage{greek}{\textit{οσος, -η, -ο}} 'as much as' also belong to that class but are declinable. However, their declension again follows the one of those adjectives whose markers are already part of the paradigm. Both may be used as pronouns or together with a noun as determiners. 
+
+Of the Modern Greek universal pronouns, \citet{holton2016greek} mentions \foreignlanguage{greek}{\textit{καθενας }} 'every one, each one' as being inflected. Again, its case markers are already present in Table \ref{table:greek_pronouns}. The same holds true for the intensive pronouns \foreignlanguage{greek}{\textit{ιδιος}} 'same' and \foreignlanguage{greek}{\textit{μονος}} 'only, alone' as well as for the contrastive pronoun \foreignlanguage{greek}{\textit{αλλος}} 'other, next' that follow adjectival declensions. Finally, \citet{holton2016greek} also mentions several quantifiers like \foreignlanguage{greek}{\textit{ολος}} 'all' and \foreignlanguage{greek}{\textit{ολοκληρος}} 'the whole' that all decline like adjectives or demonstratives and are therefore also part of the final paradigm in Table \ref{table:greek_pronouns}. As far as possible, this was revised with the given pronouns and determiners in \citet{ruge2001greek}. 
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|p{3cm}||p{5cm}|p{5cm}|}
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & \foreignlanguage{greek}{τος, τη, το, εγω, εσυ, αυτος, αυτη, αυτο, -ος, -η, -ο, -ια, -α, -ις, -ας , -να} & \foreignlanguage{greek}{τοι, τες, τα, εμεις, εσεις, αυτοι, αυτες, αυτα, -οι, -ες, -α}  \\ [1ex]
+ \hline
+ Accusative & \foreignlanguage{greek}{με, σε, τον, τη, την, το, εμενα, εσενα, \par αυτον, αυτη, αυτην, αυτο, -ο, \par -η, -ια, -ν, -ον, -α, \par -αν, -να, -ναν} & \foreignlanguage{greek}{μας, σας, τους, τις, τες, τα, \par εμας, εσας, αυτους, αυες, \par αυτα, -ους, -ες, -α} \\ [1ex]
+ \hline
+ Genitive & \foreignlanguage{greek}{μου, σου, του, της, \par εμενα, εσενα, αυτου, αυτης, \par αυτουν, αυτην, -ου, -ης, -ιας, \par -ανου,  -ας, -ανης, -νος } & \foreignlanguage{greek}{μας, σας, τους, εμας, \par εσας, αυτων, -ων, -ανων} \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of Modern Greek Pronominal Case Markers}
+\label{table:greek_pronouns}
+\end{table}
+
+
+\newpage
+
+
+
+
+
+\subsection{German}
+
+One of the biggest language genera in the Indo-European language family is Germanic \citep{wals}. Being eponymous to its parent category, German also represents a prototype amongst its related languages when it comes to morphological case marking. At first glance, as other Indo-European languages use up to nine cases, the German case inventory of only four is rather clear. However, the main reason for that is the power of the dative that takes over several functions that need to be expressed by using, for example, the ablative, the instrumental or the locative in other languages \citep{hentschel2009ger}. Apart from that, the dative is mainly used to describe the recipient or the goal. When it comes to the other cases, the syntactic function and semantic meaning they express follows the usual conditions. Whilst the nominative indicates the subject and therefore the argument or agent, the accusative describes the direct object which is the theme or patient as well as a reference on direction. As always, the genitive indicates possession. 
+
+Concerning the realization of German cases, the nominative singular as \textit{casus rectus} is unmarked. In most instances, it is referred to as showing the stem of a word \citep{sahel2018ger}. Since this does not hold true for foreign words that have been incorporated into the German language, see \citet{elsen2014ger} and the example of \textit{Atlas} whose stem changes to \textit{Atlant-} in the plural, \citet{eisenberg2020ger} introduces the notion of a 'basic form' of a word that is contrasted with stems. To basic forms, suffixes are attached in an agglutinating manner whilst the stem leads to a fusional behaviour of case marking. From this, it becomes apparent why German is characterized as a mixed form between these two categories of classical language typology. However, the usage of a root as the basic morpheme to which case is suffixed is less common. Mostly, case markers are attached to the stem represented by the nominative singular as typical for fusional languages. In the following, this very fine grained morphological distinction will not have a major impact, though. Since the essential morphological mean of indicating case is done via suffixation, this fits well into the (computational) linguistic definition of case markers that is followed \citep{sahel2018ger}. In more detail, this holds true for the main German inflectional parts of speech, namely nouns, adjectives, numerals and some pronouns \citep{eisenberg2020ger}. Of several other pronouns and the articles, no clear stem is shown which is why the whole word is considered as a case marker in these instances.  
+
+
+
+
+
+\subsubsection{German Nouns}
+
+In Table \ref{table:german_nouns}, the case markers of German nouns are summed up to a paradigm of the regular German nominal declension. Foreign words have been left out of this collection as their declension is mostly irregular. Similarly, as the stem alternation to umlauts in the plural of several nouns does not affect their case marking, this is excluded as a process purely concerned with number \citep{sahel2018ger}. Nevertheless, the case markers of German nouns needs to be considered separately between singular and plural \citep{thieroff2012ger}. Further differences occur according to the gender of German nouns by which rough declension classes are indicated. In the singular, feminine nouns do not mark any case. Similarly, the masculine singular endings of accusative and dative correspond to each other apart from a special marker that needs to be mentioned for the dative. In this, the suffix \textit{-e} may be used for non-feminine nouns that do also not end on a vowel. This form is optional and becomes more and more outdated. Nevertheless, it is used in classical writings and therefore was added to the paradigm in Table \ref{table:german_nouns}. This follows the concretely extracted case markers that are initially based on the description of German flexion in \citep{thieroff2012ger} and then refined by \citep{eisenberg2020ger}. The genitive singular on \textit{-s} results from proper names whilst the most prominent plural suffix is, together with its variants, \textit{-n}.
+
+When looking at the whole paradigm, it becomes apparent that it consists of several fields of syncretism. It is quite clear as not many different forms of case markers are to be distinguished. \citet{sahel2018ger} therefore denotes the German nominal case as rudimentary when it is compared to other languages. \citet{eisenberg2020ger} indicates that the nominal declension is actually declining. This shows that surface cases and therefore also deep cases cannot be recognized clearly by using the case markers of nouns only. It is necessary to extract those of their attached articles and pronouns as well.
+
+\begin{table}[!htbp] 
+\centering
+\begin{tabular}{|p{2,5cm}||p{5cm}|p{5cm}|}
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative &  & -e, -er, -en, -n, -s \\ [1ex]
+ \hline
+ Genitive & -s, -n, -es, -en, -ns & -e, -er, -en, -n, -s \\ [1ex]
+ \hline
+ Accusative & -en, -n & -e, -er, -en, -n, -s  \\ [1ex]
+ \hline
+ Dative & -e, -en, -n & -n, -en, -ern, -s  \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of German Nominal Case Markers}
+\label{table:german_nouns}
+\end{table}
+
+
+
+
+\subsubsection{German Adjectives}
+
+German adjectives are either prepended to the nouns they describe attributively or they stay on their own in predicative and adverbial use \citep{thieroff2012ger}. However, it is only in the first of these instances that adjectives inflect for gender, number an case. Since their gender is only differentiated in the singular, all distinct forms according to this category will be summed up in in the following paradigm of adjectival case markers. A similar condition to which adjectives are differentiated is also summarized. This refers to their possibly strong or weak inflection that results from the definiteness of the preceding article or pronoun. In order to collect the concrete case markers of German adjectives, the presented tables in \citet{thieroff2012ger} are again used as a primary source. It becomes apparent that the adjectival case markers are regularly appended to their stem.  When reviewing them in \citet{eisenberg2020ger}, it soon becomes apparent that all forms are similar. As for the nouns before, their paradigm in Table \ref{table:german_adjectives} is quite clear. Additionally, \citet{thieroff2012ger} point out to several syncretism fields that can be found. Most of these refer to gender but, for example, the markers of the genitive singular also correspond exactly to those of the plural. Finally it should be indicated that there is also adjectives that are used attributively but are not inflected. For these, a zero marking would be conceivable.
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|p{2,5cm}||p{5cm}|p{5cm}|}
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & -e, -er, -es & -e, -en \\ [1ex]
+ \hline
+ Genitive & -er, -en & -er, -en \\ [1ex]
+ \hline
+ Accusative & -e, -es, -en & -e, -en  \\ [1ex]
+ \hline
+ Dative & -en, -em, -er & -en  \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of German Adjectival Case Markers}
+\label{table:german_adjectives}
+\end{table}
+
+
+\subsubsection{German Numerals}
+
+
+When it comes to German numerals, this inflectable word form is not explicitly mentioned in the previously consulted grammars. \citet{eisenberg2020ger} only states in a side note that some numerals take adjectival forms. However, most of them are not inflected as has been described for some attributively used adjectival forms before as well. \citet{elsen2014ger} makes this more clear by classifying both cardinal and ordinal numbers as adjectives. Additionally, forms like \textit{drittel}, 'third', to which she refers to as number adjectives are not at all or only rarely declined. Therefore, no extra paradigm is created for these. The dative ending \textit{-en} as well as \textit{-e} for the nominative and accusative that is used with numbers is also already covered by the adjectival paradigm. 
+
+
+
+
+
+
+\subsubsection{German Articles}
+
+Traditionally, German grammar differentiates two kinds of articles, a definite form \textit{der, die, das} 'the' and an indefinite form \textit{ein, eine} 'a'. Since the latter form  historically results from the numeral 'one', it lacks a plural form. Today, its main function is the introduction of a new referent or object to the discourse. The definite article is then used to  directly refer to this. Its paradigm is equivalent to the demonstrative \textit{der, die, das} which will be analyzed in the following. In colloquial usage, the article becomes reduced and often merges in this form with several prepositions. When it comes to the meaning of articles, \citet{eisenberg2020ger} states that the noun or noun phrase is actually almost depends on an article. Apart from syntactical issues, this also refers to the strength of the article to show the case more precisely. In a morphological discussion, \citet{eisenberg2020ger} leaves it open to see the letter \textit{d} as the stem of the definite article. It has been decided not to follow this idea so that the final paradigm of articles consists of whole word forms as case markers. This can be found in Table \ref{table:german_articles}. As before, the forms were taken from the two basic works  \citet{thieroff2012ger} and \citet{eisenberg2020ger}.
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|p{2,5cm}||p{5cm}|p{5cm}|}
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & der, das, die, ein, eine & die \\ [1ex]
+ \hline
+ Genitive & des, der, eines, einer & der \\ [1ex]
+ \hline
+ Accusative & den, das, die, einen, ein, eine & die  \\ [1ex]
+ \hline
+ Dative & dem, der, einem, einer & den  \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of German Articles}
+\label{table:german_articles}
+\end{table}
+
+
+
+\subsubsection{German Pronouns}
+
+In comparison to the rather clear paradigms of nominal and adjectival case markers, German shows most of its originally much richer inflectional behavior when it comes to pronouns \citep{hentschel2009ger}. Based on the order pursued in \citet{thieroff2012ger}, which group pronouns into classical ones and such that are similar to articles, this quality is being captured in the following by extracting the concrete pronominal case markers towards a paradigm displayed in Table \ref{table:german_pronouns}.
+
+\citet{thieroff2012ger} start off by explaining the declension of German demonstrative pronouns like \textit{dieser}, 'this', or \textit{jener}, 'that'. As clear stems like \textit{dies-} and \textit{jen-} can be separated, these represent a prototypical pronominal flexion-pattern that is based on the declension of strong adjectives. Except for the genitive singular marker \textit{-es} that is possible in masculine and neuter, the markers are identical. For certain words like \textit{diesen Tages}, \textit{-en} is possible in the genitive singular as well. All these markers are initially added to the paradigm. When looking at two further demonstrative pronouns, \textit{derjenige}, 'the one' and \textit{derselbe}, 'the same', a special feature arises concerning these composed words.  Whilst the word ending is inflected  like a weak adjective, the prefix \textit{der-, die-, das-} is also inflected. This phenomenon is called internal flexion, \textit{Binnenflexion} in German \citep{thieroff2012ger}. It contradicts with the initial statement of German case markers being almost exclusively realized as suffixes and presents a unique example of German prefixes. Consequently, both suffix and prefix forms are part of Table \ref{table:german_pronouns}. At a closer look, these prefixes also resemble the adnominal forms of the controversially debated demonstrative pronouns \textit{der, die, das}, 'the' \citep{thieroff2012ger}. The debate on these is mainly based on their adnominal forms in which they are equal to the German definite article. Yet, when using them as pronominals, their forms of the Genitive singular \textit{dessen, derer, deren} and plural \textit{derer, deren} as well as the Dative plural \textit{denen} differ from the corresponding articles in these cases \citep{thieroff2012ger}. Therefore, the forms of this demonstrative pronoun are also part of the pronominal paradigm.
+
+When \citet{thieroff2012ger} move on to indefinita and distinguish them from indefinite pronouns, the only relevant point concerning their case markers is their equivalent inflection as compared to the demonstrative pronouns or to adjectives. In more detail, indefinita like \textit{aller, jeder}, 'all/everyone', or \textit{mancher}, 'some' are inflected like \textit{dieser} whereas \textit{beide}, 'both' or \textit{deartig}, 'such', are inflected like adjectives. (both strong and weak forms)
+Additionally, it has to be mentioned that of this set, \textit{jeder} only exists as a singular word and \textit{mehrere}, 'several', only in plural \citep{thieroff2012ger}.
+
+When it comes to possessive pronouns \textit{mein, dein, sein, ihr, unser, euer, ihr}, all possible suffixes on these nominative stem forms are already present in \ref{table:german_pronouns}. They are again consistent with the previously mentioned forms of \textit{dieser}. However, it has to be mentioned that they are unmarked in several cases like in the nominative or accusative singular \citep{thieroff2012ger}. The interrogatives \textit{welcher}, 'which one', and \textit{mancher}, 'some', are inflected like a demonstrative pronoun again \citep{thieroff2012ger}. 
+
+The German personal pronouns can be split into first, second and third person with the latter one additionally inflecting in the singular by gender \citep{thieroff2012ger}. Since there cannot be found any joint stem over all forms, these are all added to Table \ref{table:german_pronouns}. Concerning the class of reflexive pronouns \citet{thieroff2012ger} only mentions \textit{sich}, 'itself' as a representative that does not change its form in the dative and accusative. In the genitive, it is represented by the possessive pronoun-.
+
+\citet{thieroff2012ger} clearly differentiates indefinite pronouns from the previously mentioned indefinita. The former only only occur autonomous and in singular. Concerning their inflexion form they are split into two groups according to their gender as masculine or neutral \citep{thieroff2012ger}. Whilst masculine forms like \textit{jedermann}, 'anyone', have a  genitive on \textit{-s} or \textit{-es}, \textit{jemand}, 'someone', or \textit{niemand}, 'noone', do also have a pronominal usage with case markers \textit{-en} in the accusative and \textit{-em} in the dative \citep{thieroff2012ger}. Neutral indefinite pronouns do not change. All these forms are part of the paradigm in Table \ref{table:german_pronouns}
+
+When it comes to interrogative pronouns, \citet{thieroff2012ger} defines \textit{wer}, 'who', as a inflectable masculine and \textit{was}, 'what', as a non-inflectable neutral even though this basic form can also resemble an accusative. For \textit{wer}, each case has a special yet often disputed form. In the genitive, it is \textit{wessen}, in the accusative \textit{wen} and  in the dative \textit{wem} \citep{thieroff2012ger}. Since these pronouns show no clear paradigm, they are not added to Table \ref{table:german_pronouns}. Finally, German relative pronouns are under observation. For \textit{der, die, das}, 'this', all forms are already part of the paradigm. The same applies to \textit{welcher, welche, welches}, 'which one', whose markers resemble those of the demonstrative pronouns.
+
+In order to verify the final paradigm, these pronominal case markers have been reviewed by using \citet{eisenberg2020ger}.
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|p{2,5cm}||p{5cm}|p{5cm}|} 
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative &  -er, -es, -e, der-, das-, die-, der, das, die, ich, du, er, sie, es & -e, -en, die-, die, wir, ihr, sie \\ [1ex]
+ \hline
+ Genitive & -es, -er, -en, -s, des-, der-, des, der, dessen, derer, deren, meiner, deiner, seiner, ihrer & -er, -en, der-, der, derer, deren, unser, euer, ihrer \\ [1ex]
+ \hline
+ Accusative & -en, -es, -e, den-, das-, die-, den, das, die, mich, dich, ihn, es, sie & -e, -en, die-, die, uns, euch, sie  \\ [1ex]
+ \hline
+ Dative & -em, -er, -en, dem-, der-, dem, der, mir, dir, ihm, ihr & -en, den, denen, uns, euch, ihnen  \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of German Pronominal Case Markers }
+\label{table:german_pronouns}
+\end{table}
+
+
+\newpage
+
+
+
+\subsection{Russian}
+
+Next to Germanic, it is the Slavic language genus that represents several fusional languages of the Indo-European family \citep{wals}. Out of these that are all similar amongst each other, Russian is selected as a further prototypical example for the extraction of multilingual case markers. This is mainly based on its large spatial and speaker related distribution. Furthermore, its Cyrillic script also differs to the Latin and Greek ones before, this language is more interesting than Polish, for example.
+
+Initially, a basic morphological overview of the Russian word form theory is provided by \citet{kohls2009russ}. An indispensable root may be complemented with a prefix, a suffix, with both or neither of these affixes to build a stem or, put differently, a word. By appending a set of case endings to inflectable words like nouns, adjectives, numerals and pronouns, the final grammatical forms of Russian words are constructed. As can be grasped from this, Russian knows neither definite nor indefinite articles as being used for example in German. Instead, this relation is transmitted by the context or the word order \citep{wade2020russ}. The three Russian genders, masculine, feminine and neuter, are dictated by the noun and transmitted to the adjective or pronoun that qualifies for or stands for it. Even though gender only affects word forms in the singular, it is used as a factor to distinguish three Russian nominal declension patterns. Whilst most of the masculine and neuter nouns are part of the first and most feminine nouns belong to the second, the third declension class covers only feminine soft-sign nouns. Concerning this latter distinction as a second factor, the first and the second declension contain both hard- and soft-ending nouns. Other aspects that affect the shape of Russian declension endings are spelling rules and changes of stress. This distinction of case is also indicated by \citet{blake1994case}. However, as previously in Latin, stress will not be taken into account in the following subsections. Stress markers are usually not part of written texts and overall not part of the definition of case markers set up for this thesis. 
+
+In concrete, Russian differentiates six cases of which the initial four are similar to German. Their meaning is indicated by \citet{wade2020russ} as follows. The nominative denotes the subject of a state or an action and therefore the agent. It has also incorporated the vocative and its meaning of addressing persons. The accusative as the object refers simply to the patient. Next to the usual implications of possession and relationship, the Russian genitive may also be used partitively. As the indirect object, the dative refers to the recipient of an action. As indicated by its name, the instrumental describes the instrument. Finally, the prepositional is only used after prepositions. Historically, it emerged from the locative and still fulfills this function.
+
+
+
+
+
+
+\subsubsection{Russian Nouns}
+
+This section describes the collection of Russian nominal case markers as based on the comprehensive English speaking grammar by \citet{wade2020russ}. The collected forms are being revised and complemented with the help of the German speaking  standard grammar by \citet{kohls2009russ}.
+
+Initially, in terms of word formation, Russian nouns either represent an irreducible stem or a compounded noun \citep{wade2020russ}. In both cases, the different word forms are created by attaching inflectional endings to these shapes. In a first step, the paradigm in Table \ref{table:russian_nouns} is filled based on a simplified declension chart that shows these markers given in \citet{wade2020russ}. This shows that both the nominative and accusative singular as well as the genitive plural may be unmarked. In the accusative, Russian also differentiates between nouns that denote animate persons or animals and inanimate objects. According to the gender, it is either the nominative, the genitive or a separate marker that is used. Concerning the paradigm that is to be created, neither animacy nor gender are to be analyzed. Therefore, all possible markers are simply collected.  
+In the following, some alternative and more detailed Russian case markers as indicated by \citet{wade2020russ} are added to the paradigm in Table \ref{table:russian_nouns}. At first, the partitive genitive singular of nouns that denote a measurable quantity is  expressed using the suffixes \foreignlanguage{russian}{\textit{-у} or \textit{-ю}}. 
+The same but now stressed suffixes are used by some nouns in the propositional singular as well, denoting a location in combination with certain prepositions like \foreignlanguage{russian}{\textit{в} or \textit{на}}. Since stress is not taken into account, these are added to the paradigm in unstressed form. This issue show up a few more times but is always treated in this way. The possible instrumental marker \foreignlanguage{russian}{\textit{-ою}} is also added to the paradigm as a literary form often found in poetry. Furthermore, the genitive plural \foreignlanguage{russian}{\textit{-ей}} can also only be \foreignlanguage{russian}{\textit{-й}}. Throught this, a seldom change of some nouns from \foreignlanguage{russian}{\textit{-ей} to \textit{-ай}} is also covered. Both forms can also be found in \citet{kohls2009russ}.
+
+In general, the paradigm in Table \ref{table:russian_nouns} is supplemented with several further endings given in this second grammar. Being described as more learner-friendly, it specifies further and more finely differentiated endings in contrast to the simplified declension table and the separately added forms in \citet{wade2020russ}. In order to accurately distinguish different cases, all forms, although they are only phonologically expanded, have been included in the final paradigm.
+
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|p{3cm}||p{5cm}|p{5cm}|}
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & \foreignlanguage{russian}{-й, -ъ, -о, -е, -ё, -а, -я, -мя} & \foreignlanguage{russian}{-ы, -и, -а, -я, -ъя, -е, -ата, \par -ята, -ена}  \\ [1ex]
+ \hline
+ Accusative & \foreignlanguage{russian}{-й, -ъ, -о, -е, -ё, -а, -я, -мя, -ы, -и, -у, -ю, -ени} & \foreignlanguage{russian}{-ы, -и, -а, -я, -ов, -ев, -ей, -ъя, -е, -ата, -ята, -ена, -й, -ёв, -ён} \\ [1ex]
+ \hline
+ Genitive & \foreignlanguage{russian}{-а, -я, -ы, -и, -у, -ю, -ени} & \foreignlanguage{russian}{-ов, -ев, -ей, -й, -ёв, -ён} \\ [1ex]
+ \hline
+ Dative & \foreignlanguage{russian}{-у, -ю, -е, -и, -ени}  & \foreignlanguage{russian}{-ам, -ям, -енам} \\ [1ex]
+ \hline
+ Instrumental & \foreignlanguage{russian}{-ем, -ом, -ём, -ей, -ой, -ёй, \par -ъю, -ою, -енем} & \foreignlanguage{russian}{-ами, -ями, -енами} \\ [1ex]
+ \hline
+ Prepositional & \foreignlanguage{russian}{-е, -и, -у, -ю, -ени} & \foreignlanguage{russian}{-ах, -ях, -енах} \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of Russian Nominal Case Markers}
+\label{table:russian_nouns}
+\end{table}
+
+
+
+
+\subsubsection{Russian Adjectives}
+
+When approaching Russian adjectives, a differentiation between two basic kinds is made. Long adjectives are mostly used as attributes preceding the noun. As in other Indo-Eurpoean languages, they agree with this noun in gender, case and number. While some adjectives only exist in a long form, most have both a long and a short one. However, this short form is only used predicatively and therefore not of interest in terms of case marking \citep{wade2020russ}. \citet{kohls2009russ} makes this more clear by stating that short forms are not declined at all. Therefore, Table \ref{table:russian_adjectives} only depicts case markers of long Russian adjectives and follows the order of several declension tables given in \citet{wade2020russ}.
+
+Initially, the class of adjectives on hard endings, to which they can also be differentiated, is added to the paradigm. \citet{wade2020russ} additionally adds the marker \foreignlanguage{russian}{\textit{-ою}} as a  mostly poetic feminine one. For the mixed declension class, which depends on the final consonant of an adjective, their further forms are included in Table \ref{table:russian_adjectives}. Finally the same process is executed for soft ending adjectives that also show some new markers. Furthermore, Russian also knows possessive adjectives \citep{wade2020russ}. These can be split into two groups which both show a regularity of case endings. Some also resemble those of the regular adjectives. Therefore, only the differing forms are  added to Table \ref{table:russian_adjectives}. Finally, it is to mention that there are also some Russian adjectives that are indeclinable.
+
+Overall, the paradigm elaborated from \citet{wade2020russ} was reviewed by using \citet{kohls2009russ}. It was double checked that, apart from some distinct endings, most forms of the accusative singular resemble those of the nominative or genitive singular. So far, no differing forms have been encountered. 
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|p{3cm}||p{5cm}|p{5cm}|}
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & \foreignlanguage{russian}{-ый, -ая, -ое, -ий, -ее, -ой, -яя, -я, -е, -а, -о} & \foreignlanguage{russian}{-ые, -ие, -и, -ы} \\ [1ex]
+ \hline
+ Accusative & \foreignlanguage{russian}{-ый, -ого, -его, -ую, -ое, -ая, \par -ий, -ее, -ой, -юю, -ю, -е, -у, -о} & \foreignlanguage{russian}{-ые, -ых, -ие, -их, -и, -ы} \\ [1ex]
+ \hline
+ Genitive & \foreignlanguage{russian}{-ого, -ой, -ей, -его} & \foreignlanguage{russian}{-ых, -их} \\ [1ex]
+ \hline
+ Dative & \foreignlanguage{russian}{-ому, -ой, -ему, -ей, -у} & \foreignlanguage{russian}{-ым, -им} \\ [1ex]
+ \hline
+ Instrumental & \foreignlanguage{russian}{-ым, -ой, -ою, -им, -ей, -ею} & \foreignlanguage{russian}{-ыми, -ими} \\ [1ex]
+ \hline
+ Prepositional & \foreignlanguage{russian}{-ом, -ой, -ем, -ей} & \foreignlanguage{russian}{-ых, -их} \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of Russian Adjectival Case Markers}
+\label{table:russian_adjectives}
+\end{table}
+
+
+
+
+
+\subsubsection{Russian Numerals}
+
+In this section it is aimed to create a paradigm of Russian numeral case markers that is as comprehensive as possible. It arises from the exemplary declension tables of individual numbers as given in \citep{wade2020russ} and \citep{kohls2009russ}. In order to make the process traceable, the concrete numbers are being mentioned in the following. At first, Table \ref{table:russian_numerals} is filled with the case endings of the cardinal numerals \foreignlanguage{russian}{\textit{одйн}} 'one', \foreignlanguage{russian}{\textit{два}} 'two', \foreignlanguage{russian}{\textit{три}} 'three' and \foreignlanguage{russian}{\textit{четыре}} 'four' as displayed in \citep{wade2020russ}. The singular markers originate from \foreignlanguage{russian}{\textit{одйн}} 'one' in which this masculine form has no nominative case marker. However, the nominative singular feminine and neuter is marked. Both grammars do not indicate clearly whether the forms are singular or plural. Since all the other numerals semantically already indicate plurality, their markers are added to the plural column in Table \ref{table:russian_numerals}.  
+
+The numbers \foreignlanguage{russian}{\textit{пять}} 'five' - \foreignlanguage{russian}{\textit{двадцать}} 'twenty' as well as \foreignlanguage{russian}{\textit{пятьдесят}} 'fifty' - \foreignlanguage{russian}{\textit{восемьдесят}} 'eighty' decline regularly like soft-sign feminine nouns. Therefore, these markers were taken over to this paradigm as well. The missing numbers, \foreignlanguage{russian}{\textit{сорок}} 'fourty', \foreignlanguage{russian}{\textit{девяносто}} 'ninety' and \foreignlanguage{russian}{\textit{сто}} 'hundred' have the ending \foreignlanguage{russian}{\textit{-а}} in the oblique cases. Additionally, the endings \foreignlanguage{russian}{\textit{-ам}} for the dative, \foreignlanguage{russian}{\textit{-ами}} for the instrumental and \foreignlanguage{russian}{\textit{-ах}} for the prepositional, which are added to the cardinal numbers between two hundred to nine hundred, are included into the paradigm. At this stage, this already includes the case markers of \foreignlanguage{russian}{\textit{оба}/\textit{обе}}, 'both'. 
+Furthermore, Russian also knows collective numerals in a series from \foreignlanguage{russian}{\textit{двое}} 'two' to \foreignlanguage{russian}{\textit{десятеро}} 'ten' of which the forms above seven are only rarely used. The case markers of these forms given in \citet{wade2020russ} are also added to the plural column of Table \ref{table:russian_numerals}.
+
+When it comes to ordinal numerals, \citet{wade2020russ} states that these decline like hard adjectives and are also used like them. Consequently, the respective endings are also included in Table \ref{table:russian_numerals}. When finally revising the paradigm by using \citet{kohls2009russ}, some more finely grained endings emerge again. These include the genitive marker \foreignlanguage{russian}{\textit{-ух}} that is also used in the accusative when it denotes animacy. \citet{kohls2009russ} also shows the declension of \foreignlanguage{russian}{\textit{тысяча}} 'tousand', \foreignlanguage{russian}{\textit{миллион}} 'million' and \foreignlanguage{russian}{\textit{миллиард}} 'billion' which do have a singular form. These endings are  added to the paradigm in Table \ref{table:russian_numerals} as well.
+
+
+\begin{table}[!htbp] 
+\centering
+\begin{tabular}{|p{3cm}||p{5cm}|p{5cm}|} 
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & \foreignlanguage{russian}{-а, -о, -ый, -ая, -ое} & \foreignlanguage{russian}{-и, -е, -а, -о, -ы, -ые} \\ [1ex]
+ \hline
+ Accusative & \foreignlanguage{russian}{-ого, -у, -о, -ый, -ую, -ое} & \foreignlanguage{russian}{-и, -их, -а, -е, -ух, -ёх, -ых, -ы, -ые } \\ [1ex]
+ \hline
+ Genitive & \foreignlanguage{russian}{-ого, -ой, -и, -а} & \foreignlanguage{russian}{-их, -ух, -ёх, -и, -а, -ых, -ов} \\ [1ex]
+ \hline
+ Dative & \foreignlanguage{russian}{-ому, -ой, -е, -у} & \foreignlanguage{russian}{-им, -ум, -ём, -и, -а, -ам, -ым } \\ [1ex]
+ \hline
+ Instrumental & \foreignlanguage{russian}{-им, -ой, -ою, -ей, -ом, -ым } & \foreignlanguage{russian}{-ими, -умя, -емя, -мя, -ю, -ью, -а, -ами, -ыми, -ьмя } \\ [1ex]
+ \hline
+ Prepositional & \foreignlanguage{russian}{-ом, -ой, -е} & \foreignlanguage{russian}{-их, -ух, -ёх, -и, -а, -ах, -ых } \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of Russian Numeral Case Markers}
+\label{table:russian_numerals}
+\end{table}
+
+
+\subsubsection{Russian Pronouns}
+
+When analyzing the Russian pronouns for their case markers or rather case forms, the order in which they are presented in \citet{wade2020russ} will be followed. At the beginning, the forms of the personal pronouns, \foreignlanguage{russian}{\textit{я, ты, он/она/оно, мы, вы, онн}} are added completely to Table \ref{table:russian_pronouns}. The governing prepositions of the prepositional case are left out as in Latin. Adding these contradicts the basic definition of morphological case markers.
+Special forms of the instrumental, \foreignlanguage{russian}{\textit{мною} and \textit{тебою}}, which are used in verse, passive constructions and colloquial texts, or \foreignlanguage{russian}{\textit{ею}}, which is used in educated speech, are also included to the paradigm \citep{wade2020russ}. 
+With \foreignlanguage{russian}{\textit{себя}}, Russian knows a reflexive pronoun which refers back to the subject or agent closest to it. Therefore, it does not exist in the nominative. In terms of number, it is both used in the singular and plural \citep{kohls2009russ}. Due to a change of the stem in the instrumental, all complete forms are added to Table \ref{table:russian_pronouns}.
+
+When it comes to the Russian possessive pronouns, a regularity can be found for \foreignlanguage{russian}{\textit{мой}} 'my', \foreignlanguage{russian}{\textit{твои}} 'your',  \foreignlanguage{russian}{\textit{наш}} 'our' and \foreignlanguage{russian}{\textit{ваш}} 'your'. \citet{wade2020russ} indicates \foreignlanguage{russian}{\textit{мо}} and \foreignlanguage{russian}{\textit{тво}} as stems of the first two pronouns to which regular endings are attached. In order to fit the nominative forms into this pattern, \foreignlanguage{russian}{\textit{-й}} is seen here as a pronominal case marker although it is not clearly indicated as a such in the grammars. However, as it is also a regular noun marker of the nominative, this is justifiable. The stem of the latter two pronouns is the given nominative form. All different endings are added as such to Table \ref{table:russian_pronouns}. The possessive pronouns of the third person, \foreignlanguage{russian}{\textit{его}} 'his'/'its' and  \foreignlanguage{russian}{\textit{её}} 'her'/'its' in the singular and \foreignlanguage{russian}{\textit{их}} in the plural resemble the genitive form of the personal pronoun and are invariable amongst all cases \citep{kohls2009russ}. Therefore they are added to the paradigm as full forms if they are not yet present. Since the reflexive pronoun \foreignlanguage{russian}{\textit{свой}, \textit{своя}, \textit{своё}, \textit{свои}} declines like the regular possessive pronouns, its endings are already part of Table \ref{table:russian_pronouns}.
+
+For the Russian interrogative pronouns, both grammars provide a declension table of \foreignlanguage{russian}{\textit{кто}} 'who' and \foreignlanguage{russian}{\textit{что}} 'what'. As these only exist in the singular, they are added completely to the paradigm of Russian pronouns since no clear stem can be separated. However, as can be seen from its three different forms, the interrogative pronoun \foreignlanguage{russian}{\textit{чей, чья, чьё}} 'whose' declines for gender and also for number. Due to the same reason as before, all distinct forms need to be added to the paradigm \ref{table:russian_pronouns}. Those pronouns may also be used as interrogatives or relative pronouns together with \foreignlanguage{russian}{\textit{какой}} 'what' and \foreignlanguage{russian}{\textit{который}} 'which', that are declined like hard adjectives \citep{kohls2009russ}. Therefore, these markers are also added to Table \ref{table:russian_pronouns}.
+
+Regarding the Russian demonstrative pronouns \foreignlanguage{russian}{\textit{зтот}} 'this', \foreignlanguage{russian}{\textit{тот}} 'that', \foreignlanguage{russian}{\textit{сей}} 'this' and \foreignlanguage{russian}{\textit{зкий}} 'what a', things are similar as for the relative pronouns before. The forms cannot be traced back to a clear stem which is why all distinct forms were put into the paradigm of Table \ref{table:russian_pronouns}. In contrast to \citet{kohls2009russ}, \citet{wade2020russ} mentions the latter form as well but simultaneously describes it as mainly being  used in conversational register and becoming archaic.
+
+When looking at the declension of Russian determinative pronouns, it becomes apparent that in the case of \foreignlanguage{russian}{\textit{сам}} 'self', this masculine nominative singular form can be separated as a stem throughout the whole paradigm. Additionally, most of the flexional endings attached to it are already part of Table \ref{table:russian_pronouns}. Those which are not are added together with the form \foreignlanguage{russian}{\textit{самоё}} which represents a traditional literary form of the feminine accusative singular \citep{wade2020russ}. When it comes to \foreignlanguage{russian}{\textit{весь}} 'all' or 'the whole', a stem on \foreignlanguage{russian}{\textit{вс-}} can be found throughout the whole paradigm except for the mentioned form of the masculine nominative and accusative singular. By classifying this change as a stem alternation, additional flexional endings of the further cases are added to the paradigm of Russian pronominal markers as before. 
+
+Of the further determinative pronouns, \foreignlanguage{russian}{\textit{каждый}} 'each' and \foreignlanguage{russian}{\textit{самый}} 'most' are declined like hard ending adjectives whose markers are already part of the paradigm \citep{wade2020russ}. Since \foreignlanguage{russian}{\textit{всякий}} 'any' and \foreignlanguage{russian}{\textit{всячецкий}} 'all kinds' are declined following the mixed declension of Russian adjectives, the markers that differ from the already present hard ending ones are added to Table \ref{table:russian_pronouns} (see also \citet{kohls2009russ}).
+
+In Russian, negated pronouns are created via prefixation of the negation particle \foreignlanguage{russian}{\textit{ни}} which can be translated as 'nor' \citep{wade2020russ}. For \foreignlanguage{russian}{\textit{никакой}}, 'none', there is no issue as it declines like a hard adjective. However, for \foreignlanguage{russian}{\textit{никто}}, 'no one', \foreignlanguage{russian}{\textit{ничто}}, 'nothing', and \foreignlanguage{russian}{\textit{ничей}}, 'nobody', the full word forms need to be added to the paradigm as was done for the underlying interrogatives. 
+
+Finally, for \foreignlanguage{russian}{\textit{некоторый}}, 'some', all hard ending adjectival case markers are already in the paradigm whilst for \foreignlanguage{russian}{\textit{некий}}, similarly 'some', several finer grained markers need to be included. Overall, \citet{kohls2009russ} was used as a second source throughout the whole process. In this, the presentation of the pronouns was kept simpler.
+
+
+\begin{table}[!htbp] 
+\centering
+\begin{tabular}{|p{3cm}||p{5cm}|p{5cm}|} 
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & \foreignlanguage{russian}{я, ты, он, она, оно, -и, -я, -ё, -а, -е, -й, его, её, кто, что, чей, чья, чьё, -ой, -ое, -ая, -ый, зтот, зта, зто, тот, та, то, сей, сия, сие, зкий, зкая, зкое, -о, -ий, никто, ничто, ничей, ничья, ничьё} & \foreignlanguage{russian}{нас, вас, их, -и, чьи, -ые, -ие, зти, те, сии, зкие, -е, ничьи} \\ [1ex]
+ \hline
+ Accusative & \foreignlanguage{russian}{меня, тебя, его, её, оно, себя, -и, -его, -ю, -ё, -у, -е, -й, кого, что, чей, чьего, чью, чьё, -ой, \par -ое, -ая, -ый, -ую, -ого, зтот, зтого, зту, зто, тот, того, ту, то, сей, сего, сию, сие, зкий, \par зкоего, зкую, -оё, -о, -ий, \par никого, ничто, ничей, ничьего, ничью, ничьё, -оего} & \foreignlanguage{russian}{мы, вы, оны, себя, -и, -их, их, чьи, чьих, -ые, -йе, -ых, -их, зти, зтих, те, тех, сии, сих, зкие, зких, -е, -ех, -ие, ничьи, \par ничьих, -оих} \\ [1ex]
+ \hline
+ Genitive & \foreignlanguage{russian}{меня, тебя, его, её, оно, \par себя, -его, -ей, кого, чего, \par чьего, чьей, -ого, -ой, зтого, зтой, того, той, сего, сей, \par зкоего, зкой, -ого, -ой, никого, ничего, ничьего, ничьей, -оего, -оей} & \foreignlanguage{russian}{нас, вас, их, себя, -их, чьих, \par -ых, -их, зтих, тех, сих, зких, \par -ех, ничьих, -оих} \\ [1ex]
+ \hline
+ Dative & \foreignlanguage{russian}{мне, тебе, ему, ей, себе, -ему, -ей, его, её, кому, чему, чьему, чьей, -ому, -ой, зтому, зтой, \par тому, той, сему, сей, зкоему, зкой, -ому, -ой, никому, \par ничему, ничьему, ничьей, \par -оему, -оей} & \foreignlanguage{russian}{нам, вам, им, себе, -им, их, чьим, -ым, -им, зтим, тем, сим, зким, -ем, ничьим, -оим} \\ [1ex]
+ \hline
+ Instrumental & \foreignlanguage{russian}{мной, тебой, им, ей, ею, мною, тебою, собой, собою, -им, -ей, -ею, его, её, кем,  чем, чьим, чьей, чью, -ым, -ой, -им, зтим, зтой, зтою, тем, той, тою, сим, сей, сею, зким, зкой, зкою, \par -ой, -ою, -ем, никем,  ничем, ничьим, ничьей, ничью, -оим, \par -оей} & \foreignlanguage{russian}{нами, вами, ими, собой, \par собою, -ими, их, чьими, -ыми, \par -ими, зтими, теми, сими, \par зкими, -еми, ничьими, \par -оими} \\ [1ex]
+ \hline
+ Prepositional & \foreignlanguage{russian}{мне, тебе, нём, ней, себе, -ём, \par -ей, -ем, его, её, ком, чём, чьём, чьей, -ом, -ой, зтом, зтой, том, той, сём, сей, зком, зкой, -ом, -ой, \par ником, ничём, ничьём, ничьей, -оем, -оей} & \foreignlanguage{russian}{нас, вас, них, себе, -их, их, чьих, -ых, -их, зтих, тех, сих, зких, -ех, ничьих, -оих} \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of Russian Pronominal Case Markers}
+\label{table:russian_pronouns}
+\end{table}
+
+
+\newpage
+
+
+\section{An Altaic Language: Turkish}
+
+As for the first non Indo-European language, this section depicts the collection of Turkish case markers. In more detail, Turkish belongs to the Altaic language family and is considered the main representative of the Turkic language genus \citep{wals}. Amongst its related languages such as Uzbek, Tatar, Kazakh or Kirghiz, it is the most widespread in terms of number of speakers \citep{goeksel2005tuer}. 
+Apart from that, Turkish represents a prototypical example of agglutinative languages to which all further Turkic languages equally belong (see \citet{ersenrasch2012tuer} and \citet{wals}). Due to its rather simple inflectional structure, the Turkish nominal declension was also used by \citet{blake1994case} to explain the clear separability of  case markers as inflectional suffixes from stems in his introduction to \textit{case}. 
+
+In the following, \citet{ersenrasch2012tuer} will be used as the primary source for a more detailed analysis of Turkish inflectional morphology. The extracted case marking forms in this grammar will then be revised by consulting \citet{goeksel2005tuer} as a secondary source. 
+Both grammars initially indicate that different nominal word forms are created by appending the respective suffixes of grammatical categories to a predominantly immutable word stem in a fixed order. For Turkish, this sequence is  number, possession and case. Both grammars differentiate six Turkish cases. At first glance, apart from the vocative, the case system resembles that of Latin with an additional concrete locative. However, in terms of case meaning, several differences appear. At first, besides being the subject and therefore the agent, the nominative may also represent an unmarked direct object that is closely connected to the verb. In this case it represents the object that is talked about. Specifically, the Turkish object is indicated by the accusative, though. Furthermore, apart from the classical direct object, the dative is used to denote the relation 'where to'. Finally, the ablative implies the denotation 'from where'. 
+
+As compared to the previous Indo-European languages, Turkish does not differentiate any grammatical gender. Loanwords that do so in their root language have no influence on case marking. More importantly, no articles are used to indicate the definiteness of nouns. Accordingly, no paradigm of this part of speech can be created. Concerning its orthography, Turkish agrees to a large extent with the Latin script but knows some further special characters of which one, \foreignlanguage{turkish}{\textit{ı}}, appears frequently in the case morpheme. 
+
+
+
+\subsubsection{Turkish Nouns}
+
+As described above, the case markers of Turkish nouns are generally to be extracted as the suffixes of the third inflectional category that is added to the nominal stem. Therefore, no further distinction with number has to be made at first glance. However, as \citet{ersenrasch2012tuer} indicates a slightly different variant of the genitive and accusative case marker between singular and plural in a table of nouns inflected for number, possession and case. Consequently, and also to follow the general structure of the gold standard, a distinction between singular and plural endings will be made in the following. In the final paradigm, this will not have an effect, though, as the overall set of markers stays the same.
+
+As signaled by implication, the paradigm in Table \ref{table:turkish_nouns} is based on the general overview as well as on concrete examples given in \citep{ersenrasch2012tuer}. As a result of the theoretically mentioned phonological conditions, these show more detailed case suffixes after stems on final vocalic sounds. In order to attest completeness to the gold standard, these slightly different forms are all added to the paradigm. Similar to German, the nominative is unmarked by representing the infinitive form. A special situation appears with proper nouns. The case suffix is separated from the stem or the previous suffixes by an apostrophe and therefore represents a clitic \citep{ersenrasch2012tuer}. Yet, as the inflectional morpheme also stays the same, no differentiation is made for these cases. The final paradigm in Table \ref{table:turkish_nouns} agrees with the given forms in \citep{goeksel2005tuer}. This grammar also mentions a further inflectional marker of nominals that indicates an instrumental, comitative or conjunctive meaning. It may be attached to noun phrases like dative, locative or ablative markers which thereby function as oblique objects. However, \foreignlanguage{turkish}{\textit{-la, -yla, -le}} are unstressed and therefor not seen as clear case suffixes \citep{ersenrasch2012tuer}. 
+
+In a further step, copula and person markers can additionally be attached to inflected word forms as suffixes to create predicates. This operation changes the status of the respective case suffixes to infixes. Both grammars describe this general process, but do not provide a clear paradigm  to support it for all cases. From the given examples, it can only be seen that these additional suffixes are used in the locative. Therefore, these suffixes are also indicated as infixes in the final paradigm in Table \ref{table:turkish_nouns}.
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|p{3cm}||p{5cm}|p{5cm}|}
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & \foreignlanguage{turkish}{} & \foreignlanguage{turkish}{} \\ [1ex]
+ \hline
+ Accusative & \foreignlanguage{turkish}{-ı, -i, -yi, -yü, -yı, -yu, -ü, -u} & \foreignlanguage{turkish}{-ı, -i, -yi, -yü, -yı, -yu, -ü, -u} \\ [1ex]
+ \hline
+ Genitive & \foreignlanguage{turkish}{-ın, -nin, -nün, -nın, -nun, -in, -ün, -un} & \foreignlanguage{turkish}{-ın, -nin, -nün, -nın, -nun, -in, -ün, -un} \\ [1ex]
+ \hline
+ Dative & \foreignlanguage{turkish}{-a, -ye, -ya, -e} & \foreignlanguage{turkish}{-a, -ye, -ya, -e} \\ [1ex]
+ \hline
+ Locative & \foreignlanguage{turkish}{-da, -de, -te, -ta, -da-, -de-, \par -te-, -ta-} & \foreignlanguage{turkish}{-da, -de, -te, -ta, -da-, -de-, \par -te-, -ta-} \\ [1ex]
+ \hline
+ Ablative & \foreignlanguage{turkish}{-dan, -den, -ten, -tan} & \foreignlanguage{turkish}{-dan, -den, -ten, -tan} \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of Turkish Nominal Case Markers}
+\label{table:turkish_nouns}
+\end{table}
+
+
+\subsubsection{Turkish Adjectives}
+
+When approaching Turkish adjectives, it becomes apparent that this part of speech is not being inflected at all \citep{goeksel2005tuer}. Therefore, no paradigm of adjectival case markers can be compiled. Nevertheless, some special features of this part of speech should be mentioned briefly. In Turkish, several nouns may be used as adjectives without any special marking \citep{ersenrasch2012tuer}. The other way around, even more adjectives can be used as nouns. Therefore, in these instances and if the noun is not inflected, the word order is necessary to clearly distinguish between the adjective, that usually comes first, and the noun. Concerning their function, Turkish adjectives may be used attributively and predicatively as known from other languages. Additionally, some may also simultaneously be used adverbially \citep{ersenrasch2012tuer}. Finally, in contrast to the missing case inflection, the comparative forms of Turkish adjectives may be built.
+
+
+\subsubsection{Turkish Numerals}
+
+Concerning Turkish numerals, both grammars indicate a similar lack of inflection as with Turkish adjectives before. \citet{ersenrasch2012tuer} as well as \citet{goeksel2005tuer} state that numerals are suffixed by \foreignlanguage{turkish}{-inci, -üncü,  -uncu, -ıncı, -nci, -ncı} without making a differentiation according to case.
+
+
+\subsubsection{Turkish Pronouns}
+
+As mentioned in the course of the description of Turkish nouns, pronominal suffixes that indicate possession may be directly attached to them \citep{ersenrasch2012tuer}. As these are marked before the case and do not fuse with it, they were therefore not taken into account \citep{blake1994case}. Besides, it is Turkish pronouns as independent parts of speech that are now under observation in this section. In order to extract the Turkish pronominal case markers, the order in which the respective pronouns are presented in \citet{ersenrasch2012tuer} is followed.
+
+This begins with the personal pronouns \foreignlanguage{turkish}{\textit{ben, sen, o}} 'I', 'you' and 'he/she/it' in the singular together with their now clearly differentiated plural forms \foreignlanguage{turkish}{\textit{biz, siz, on}} 'we', 'you' and 'they'. These nominative forms are again unmarked and resemble a clear stem to which case markers are attached. These are initially added to the paradigm in Table \ref{table:turkish_pronouns}. In this context, a vowel alternation in the dative of the first and second person singular to \foreignlanguage{turkish}{\textit{ban-} and \textit{san-}} should be mentioned. However, this does not affect the case endings that are similar to the nominal ones.  By contrast, the genitive marker of the first person singular and plural shows a special form ending on \foreignlanguage{turkish}{\textit{-im}}. In general, the genitive forms of the personal pronoun are yet again identical to the ones of the possessive pronoun. Apart from these markers, that mainly resemble the nominal forms, further suffixes may be attached to personal pronouns. The ending \foreignlanguage{turkish}{\textit{-ce}} roughly denotes 'in my/your/... opinion', attaching \foreignlanguage{turkish}{\textit{-le/-la}} means 'with me/you/...' and the suffix \foreignlanguage{turkish}{\textit{-ız/-uz}} translates to 'without me/you/...' \citep{ersenrasch2012tuer}. However, as these are not classified as case markers, they are not added to the paradigm.
+
+In order to create a possessive pronoun that can stand in place of a noun, the nominalizing suffix \foreignlanguage{turkish}{\textit{-ki}} is attached to the personal pronouns. Its case markers mainly follow those of the personal pronouns but some differing forms are included in Table \ref{table:turkish_pronouns}. The same holds true for the Turkish demonstrative pronouns \foreignlanguage{turkish}{\textit{bu, şu} 'this (one here)', 'this (one there)' and \textit{o}} 'that (one there)'. As before, the suffix \foreignlanguage{turkish}{\textit{-la}} can be attached to the demonstrative pronouns was well, denoting roughly 'so that' whilst \foreignlanguage{turkish}{\textit{-ız/-uz}} translates to 'without this/that'. Again these suffixes are not added to the paradigm of case markers although they may be used to indicate a similar relation.
+
+According to \citet{ersenrasch2012tuer} Turkish also knows four locative pronouns. Whilst \foreignlanguage{turkish}{\textit{nere}} may be translated as 'which place?', \foreignlanguage{turkish}{\textit{bura, şura} and \textit{ora}} denote 'this place here/there/ over there'. Most of their case marking suffixes are already part of Table \ref{table:turkish_pronouns}. The new forms are added to the paradigm. 
+
+When it comes to the Turkish reflexive pronoun \foreignlanguage{turkish}{\textit{kendi}} that translates to 'own/self', all case markers are already part of the paradigm. The same holds true for the reciprocal pronoun \foreignlanguage{turkish}{\textit{birbiri}} 'each other'. 
+Regarding the two Turkish interrogatives \foreignlanguage{turkish}{\textit{kim}} 'who' and \foreignlanguage{turkish}{\textit{ne}} 'what', the latter one shows some further, finer grained case markers like \textit{-yin} in the genitive singular that are added to Table \ref{table:turkish_pronouns}. Additional \foreignlanguage{turkish}{\textit{hangi} or \textit{hangisi}} 'whose' may already be declined by using the paradigm. 
+
+Amongst the larger set of Turkish indefinite pronouns, \citet{ersenrasch2012tuer} explicitly mentions \foreignlanguage{turkish}{\textit{kimse}}, '(some)one (person)'. Since this pronoun declines like a noun, its case markers are already covered by the paradigm. The same applies to the further declinable representatives of this class which complement the presentation of Turkish pronouns in this grammar.
+
+Finally, to ensure the paradigm in Table \ref{table:turkish_pronouns} covers all pronominal case markers, it is revised by using \citet{goeksel2005tuer}. This grammar does not show clear paradigms of pronominal case marking but mentions the general procedure and deviating forms. Based on the examples shown, no differing markers could be identified. In general, as due to the agglutinative character of Turkish, the pronominal case markers are very similar to those attached to nouns.
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|p{3cm}||p{5cm}|p{5cm}|}
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & \foreignlanguage{turkish}{-si, -sı} & \foreignlanguage{turkish}{-i, -ı}  \\ [1ex]
+ \hline
+ Accusative & \foreignlanguage{turkish}{-i, -nu, -ni, -u, -yı, -yi} & \foreignlanguage{turkish}{-i, -ı, -ini} \\ [1ex]
+ \hline
+ Genitive & \foreignlanguage{turkish}{-im, -in, -nun, -nin, -nın, -yin} & \foreignlanguage{turkish}{-im, -in, -ın, -inin} \\ [1ex]
+ \hline
+ Dative & \foreignlanguage{turkish}{-a, -na, -n, -e, -ya, -ne, -ye}  & \foreignlanguage{turkish}{-i, -ı, -e, -a, -ine} \\ [1ex]
+ \hline
+ Locative & \foreignlanguage{turkish}{-de, -nda, -nde} & \foreignlanguage{turkish}{-de, -da, -inde} \\ [1ex]
+ \hline
+ Ablative & \foreignlanguage{turkish}{-den, -dan, -nden, -ndan, \par -yden} & \foreignlanguage{turkish}{-den, -dan, -inden} \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of Turkish Pronominal Case Markers}
+\label{table:turkish_pronouns}
+\end{table}
+
+
+\newpage
+
+
+\section{A Uralic Language: Finnish}
+
+Although Finland is bordered by countries in which primarily Indo-European languages are spoken, the Finnish language belongs to the Uralic language family that is quite different from these. In more detail, Finnish is part of the Finnic, or rather Finno-Ugric genus, being closely related to Estonian and Hungarian (see \citet{wals} and \citet{white2008finn}). Like Turkish before, Finnish is an agglutinative language in which grammatical forms of words are crated by attaching suffixes to stems of nominals, i.e. nouns, adjectives, pronouns and numerals. This is described as being relatively regular by \citet{white2008finn} which also indicates the presence of attributive agreement of adjectives, pronouns and numerals to their preceding noun. \citet{karlsson2018finn} highlights the extensive use of inflection in order to indicate meaning by different word forms. 
+
+Finnish uses fifteen different cases. In the following, these are four groups according to \citet{putz2002finn} whilst their function and possible translation is given according to \citet{karlsson2018finn}. At first, four syntactic cases are differentiated. Of these, the nominative indicates the basic agent, the genitive possession and the accusative represents a specific object case. A further case of this group is the partitive that is used for indefinite disclosures and quantification that translate to 'some ...'. The two semi syntactic cases essive and translative signal a state or a change of a state. In order to display location, Finnish uses six cases which may be divided into each tree internal and external ones. The first group includes the inessive 'inside', the elative 'out of' as well as the illative 'into'. Of the latter ones, the adessive denotes 'on' plus possibly the instrument, the ablative 'off' and the allative 'onto'. \citet{blake2012hbocas} explains the origin of these meanings by the fusion of orientation markers with case markers. In particular, the locative cases essive and partitive have partly fused with forms for 'in' and 'on' to yield  local cases. The three resembling cases are called 'marginal' by \citet{putz2002finn} which becomes apparent when considering their function. The comitative is used to state accompanying behavior as 'with ...' whilst the abessive denotes the contrary, 'without ...'. Finally, the instructive is used idiomatically. When it comes to the category of number, Finnish differentiates between singular and plural, the similar question of depicting these as in Turkish arises again, especially because the case endings of the plural are usually similar to the ones in the singular. This results from the agglutinative insertion of the affix \textit{-i-} between the stem and the case ending for all cases apart from the nominative. Here, \textit{-t} is used as no further case marker follows. However, as \citet{white2008finn} mentions, the markers of the genitive, partitive and illative may be slightly different in both numbers. Therefore, the following paradigms differentiates between this category as well. Finally, Finnish does not differentiate any grammatical gender which can have an affect on its case markers. 
+
+
+
+
+\subsubsection{Finnish Nouns}
+
+In an initial presentation of nominal Finnish stems, \citet{white2008finn} shows that stem often but not always represents the basic form to which inflectional endings are attached. This is mainly based on an alternation in the stem. Therefore, the following paradigm of Finnish nominal case markers in \ref{table:finnish_nouns} is based on the forms that \citet{white2008finn} clearly indicates as such. Starting from the given summary table, further mostly phonologically conditioned differences are included. These are shown by concrete examples. 
+
+As for most of the previous languages, the Finnish nominative singular is unmarked as the basic form of a noun. This may also apply to its related case, the accusative singular. It is then again these two cases that are marked differently in the plural. As a sign of the basic form, \textit{-t} is added to the stem and also to the paradigm. For most of the further cases, the similar markers of the singular and the plural need to be transferred. The differing ones are extracted from the examples in \citet{white2008finn}. A further special case concerns the commitative. This is only marked in the plural although its meaning is both singular or plural. It is also the forms of the commitative that indicate the eventuality of a further possession suffix being attached to Finnish nominal case forms. This issue is also highlighted by \citet{blake1994case} who states that a connection of both possessive and case suffix would lead to an extremely extensive paradigm of case endings. Therefore, following the theoretical description of case markers as affixes, all nominal case suffixes similarly need to be seen as case infixes. Although \citet{white2008finn} states that possessive suffixes are simply added after the case ending of words, no complete paradigm for all cases but only examples are given. Furthermore, it is indicated that case endings remain strong and both \textit{-t} and \textit{-n} as final sounds of case markers are dropped when a possessive suffix is added after them. Similarly, the transitive ending \textit{-ksi-} changes to \textit{-kse-}. Following these specifications, all suffixes in Table \ref{table:finnish_nouns} are added accordingly as infixes.
+
+Finally, this paradigm is revised by using \citet{karlsson2018finn} as a second source. As far as possible, all case markers were extracted from the general overview and the concrete examples in this grammar.
+
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|p{3cm}||p{5cm}|p{5cm}|}
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & \foreignlanguage{finnish}{} & \foreignlanguage{finnish}{}  \\ [1ex]
+ \hline
+ Genitive & \foreignlanguage{finnish}{-n} & \foreignlanguage{finnish}{-en, -den, -ten, -tten, -e-, -de-, -te-, -tte- } \\ [1ex]
+ \hline
+ Accusative & \foreignlanguage{finnish}{-n} & \foreignlanguage{finnish}{-t} \\ [1ex]
+ \hline
+ Partitive & \foreignlanguage{finnish}{-a, -ä, -ta, -tta, -tä, -ttä, -a-, -ä-, -t-, -tta-, -tä-, -ttä- }  & \foreignlanguage{finnish}{-a, -ä, -ta, -tä, -a-, -ä-, -ta-, -tä-} \\ [1ex]
+ \hline
+ Inessive & \foreignlanguage{finnish}{-ssa, -ssä, -ssa-, -ssä-} & \foreignlanguage{finnish}{-ssa, -ssä, -ssa-, -ssä-} \\ [1ex]
+ \hline
+ Elative & \foreignlanguage{finnish}{-sta, -stä, -sta-, -stä-} & \foreignlanguage{finnish}{-sta, -stä, -sta-, -stä-} \\ [1ex]
+ \hline
+ Illative & \foreignlanguage{finnish}{-on, -ön, -an, -än, -en, -in, \par -un, -yn, -han, -hän, -hin, \par -hen, -hun, -hon, -hön, -seen, -o-, -ö-, -a-, -ä-, -e-, -i-, -u-, \par -y-, -ha-, -hä-, -hi-, -he-, \par -hu-, -ho-, -hö-, -see-} & \foreignlanguage{finnish}{-in, -hin, -siin, -i-, -hi-, -sii-} \\ [1ex]
+ \hline
+ Adessive & \foreignlanguage{finnish}{-lla, -llä, -lla-, -llä-} & \foreignlanguage{finnish}{-lla, -llä, -lla-, -llä-} \\ [1ex]
+ \hline
+ Ablative & \foreignlanguage{finnish}{-lta, -ltä, -lta-, -ltä-} & \foreignlanguage{finnish}{-lta, -ltä, -lta-, -ltä-} \\ [1ex]
+ \hline
+ Allative & \foreignlanguage{finnish}{-lle, -lle-} & \foreignlanguage{finnish}{-lle, -lle-} \\ [1ex]
+ \hline
+ Essive & \foreignlanguage{finnish}{-na, -nä, -na-, -nä-} & \foreignlanguage{finnish}{-na, -nä, -na-, -nä-} \\ [1ex]
+ \hline
+ Translative & \foreignlanguage{finnish}{-ksi, -kse-} & \foreignlanguage{finnish}{-ksi, -kse-} \\ [1ex]
+ \hline
+ Comitative & \foreignlanguage{finnish}{} & \foreignlanguage{finnish}{-ne, -ne-} \\ [1ex]
+ \hline
+ Abessive & \foreignlanguage{finnish}{-tta, -ttä, -tta-, -ttä-} & \foreignlanguage{finnish}{-tta, -ttä, -tta-, -ttä-} \\ [1ex]
+ \hline
+ Instructive & \foreignlanguage{finnish}{-n} & \foreignlanguage{finnish}{-n} \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of Finnish Nominal Case Markers}
+\label{table:finnish_nouns}
+\end{table}
+
+
+\subsubsection{Finnish Adjectives}
+
+This section on Finnish adjectival case markers can be kept rather short. As \citet{white2008finn} and the further grammars indicate, no formal difference exists between nouns and adjectives. Therefore, the paradigm in Table \ref{table:finnish_adjectives} corresponds to that of nouns in terms of the displayed suffixes. The possessive marker that changes these to infixes is not attached to adjectives. Therefore, the following forms are only those suffixes of the nominal paradigm above. This is supported by the second grammar, \citet{karlsson2018finn}, as well. Again, no further suffixes are found in this source.
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|p{3cm}||p{5cm}|p{5cm}|}
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & \foreignlanguage{finnish}{} & \foreignlanguage{finnish}{}  \\ [1ex]
+ \hline
+ Genitive & \foreignlanguage{finnish}{-n} & \foreignlanguage{finnish}{-en, -den, -ten, -tten } \\ [1ex]
+ \hline
+ Accusative & \foreignlanguage{finnish}{-n} & \foreignlanguage{finnish}{-t} \\ [1ex]
+ \hline
+ Partitive & \foreignlanguage{finnish}{-a, -ä, -ta, -tta, -tä, -ttä}  & \foreignlanguage{finnish}{-a, -ä, -ta, -tä} \\ [1ex]
+ \hline
+ Inessive & \foreignlanguage{finnish}{-ssa, -ssä} & \foreignlanguage{finnish}{-ssa, -ssä} \\ [1ex]
+ \hline
+ Elative & \foreignlanguage{finnish}{-sta, -stä} & \foreignlanguage{finnish}{-sta, -stä} \\ [1ex]
+ \hline
+ Illative & \foreignlanguage{finnish}{-on, -ön, -an, -än, -en, -in, -un, -yn, -han, -hän, -hin, -hen, \par -hun, -hon, -hön, -seen} & \foreignlanguage{finnish}{-in, -hin, -siin} \\ [1ex]
+ \hline
+ Adessive & \foreignlanguage{finnish}{-lla, -llä} & \foreignlanguage{finnish}{-lla, -llä} \\ [1ex]
+ \hline
+ Ablative & \foreignlanguage{finnish}{-lta, -ltä} & \foreignlanguage{finnish}{-lta, -ltä} \\ [1ex]
+ \hline
+ Allative & \foreignlanguage{finnish}{-lle} & \foreignlanguage{finnish}{-lle} \\ [1ex]
+ \hline
+ Essive & \foreignlanguage{finnish}{-na, -nä} & \foreignlanguage{finnish}{-na, -nä} \\ [1ex]
+ \hline
+ Translative & \foreignlanguage{finnish}{-ksi} & \foreignlanguage{finnish}{-ksi} \\ [1ex]
+ \hline
+ Comitative & \foreignlanguage{finnish}{} & \foreignlanguage{finnish}{-ne} \\ [1ex]
+ \hline
+ Abessive & \foreignlanguage{finnish}{-tta, -ttä} & \foreignlanguage{finnish}{-tta, -ttä} \\ [1ex]
+ \hline
+ Instructive & \foreignlanguage{finnish}{-n} & \foreignlanguage{finnish}{-n} \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of Finnish Adjectival Case Markers}
+\label{table:finnish_adjectives}
+\end{table}
+
+
+
+
+\subsubsection{Finnish Numerals}
+
+As compared to adjectives, Finnish cardinal numerals have both singular and plural forms in all cases \citep{white2008finn}. According to \citet{karlsson2018finn}, they decline like the nominals analyzed before. In concrete, the following paradigm in Table \ref{table:finnish_numerals} consists of the same case markers as have been worked out for the Finnish nouns. Whilst the case of cardinal numbers from one to ten is indicated by case suffixes, it is indicated in numbers from eleven to nineteen by infixes. This results from the invariable form \textit{toista} that is attached to the basic numbers. However, this also applies for higher numbers up to one hundred in which both parts are inflected for case. In concrete, the marking on the tens is realized as an infix whilst the one on the ones represents a suffix.
+
+When it comes to ordinal numbers, \citet{white2008finn} indicates that they are decorated by the ordinal sign \textit{-s}. This applies for the nominative whilst the forms of the further cases as indicated in both grammars correspond to the ones already in Table \ref{table:finnish_numerals}.
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|p{3cm}||p{5cm}|p{5cm}|}
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & \foreignlanguage{finnish}{-s} & \foreignlanguage{finnish}{}  \\ [1ex]
+ \hline
+ Genitive & \foreignlanguage{finnish}{-n} & \foreignlanguage{finnish}{-en, -den, -ten, -tten } \\ [1ex]
+ \hline
+ Accusative & \foreignlanguage{finnish}{-n} & \foreignlanguage{finnish}{-t} \\ [1ex]
+ \hline
+ Partitive & \foreignlanguage{finnish}{-a, -ä, -ta, -tta, -tä, -ttä}  & \foreignlanguage{finnish}{-a, -ä, -ta, -tä} \\ [1ex]
+ \hline
+ Inessive & \foreignlanguage{finnish}{-ssa, -ssä} & \foreignlanguage{finnish}{-ssa, -ssä} \\ [1ex]
+ \hline
+ Elative & \foreignlanguage{finnish}{-sta, -stä} & \foreignlanguage{finnish}{-sta, -stä} \\ [1ex]
+ \hline
+ Illative & \foreignlanguage{finnish}{-on, -ön, -an, -än, -en, -in, -un, -yn, -han, -hän, -hin, -hen, \par -hun, -hon, -hön, -seen} & \foreignlanguage{finnish}{-in, -hin, -siin} \\ [1ex]
+ \hline
+ Adessive & \foreignlanguage{finnish}{-lla, -llä} & \foreignlanguage{finnish}{-lla, -llä} \\ [1ex]
+ \hline
+ Ablative & \foreignlanguage{finnish}{-lta, -ltä} & \foreignlanguage{finnish}{-lta, -ltä} \\ [1ex]
+ \hline
+ Allative & \foreignlanguage{finnish}{-lle} & \foreignlanguage{finnish}{-lle} \\ [1ex]
+ \hline
+ Essive & \foreignlanguage{finnish}{-na, -nä} & \foreignlanguage{finnish}{-na, -nä} \\ [1ex]
+ \hline
+ Translative & \foreignlanguage{finnish}{-ksi} & \foreignlanguage{finnish}{-ksi} \\ [1ex]
+ \hline
+ Comitative & \foreignlanguage{finnish}{} & \foreignlanguage{finnish}{-ne} \\ [1ex]
+ \hline
+ Abessive & \foreignlanguage{finnish}{-tta, -ttä} & \foreignlanguage{finnish}{-tta, -ttä} \\ [1ex]
+ \hline
+ Instructive & \foreignlanguage{finnish}{-n} & \foreignlanguage{finnish}{-n} \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of Finnish Numeral Case Markers}
+\label{table:finnish_numerals}
+\end{table}
+
+
+
+
+
+\subsubsection{Finnish Pronouns}
+
+In order to create a paradigm of Finnish pronominal case markers, this passage follows the order and concrete declension tables of pronouns given in \citet{karlsson2018finn}. As opposed to \citet{white2008finn} that only broadly states that the Finnish pronouns have all case forms, this grammar does not provide markers in all cases, especially not in the marginal ones (comitative, abessive and instructive). Therefore, the paradigm in Table \ref{table:finnish_pronouns} builds on this rather restricted approach. As some of the pronouns function like nouns, their case markers will intersect. The same holds true for such that are used as premodifiers and thereby need to agree with the nominal head. However, as there are some differences, the declension table of the nouns will not be taken over as a general basis. Nevertheless, it is used to revise the following forms by \citet{karlsson2018finn}. 
+
+At first, personal pronouns are under observation. Whilst for the singular forms \textit{minä} 'I', \textit{sinä} 'you' and \textit{hän} 'he/she' the stem is \textit{minu-, sinu-} and \textit{häne-}, both basic form and stem coincide in the plural. In concrete, this is \textit{me} 'we', \textit{te} 'you' and \textit{he} 'they'. The declension follows the basic nominal forms but adds the marker \textit{-dät} for the accusative and \textit{-dän} for the genitive plural. 
+The two main Finnish demonstrative pronouns are \textit{tämä} 'this' and \textit{tuo} 'that'. In the plural, they are \textit{nämä} 'these' and \textit{nuo} 'those'. The forms \textit{se} 'it' and \textit{ne} 'they' refers to something previously mentioned. Concerning their case markers, \textit{-män} and \textit{-den} are used for the genitive singular and plural whilst all other forms decline regularly.  
+Further differing forms appear when it comes to the interrogative pronouns \textit{kuka} 'who' and \textit{mikä} 'which, what'. The suffix \textit{-kä} may be used to indicate the genitive and accuastive singular as well as the nominative, genitive and accusative plural. All further forms indicated by \citet{karlsson2018finn} correspond to the ones of the nominal paradigm. The same holds true for \textit{kumpi} ‘which of two’ and \textit{millainen} 'what kind of'.
+Concerning the Finnish indefinite pronouns, their case marking behavior strongly influences the paradigm in Table \ref{table:finnish_pronouns} to look even more like the nominal one. Of these, \textit{joku} 'someone' is a two parted pronoun in which both parts \textit{jo-} and \textit{-ku} are inflected. Resulting from this, infix forms of its case markers are to be added to the paradigm. This also needs to be done for \textit{jokin} 'something', in which \textit{-kin} is added after the case marker as a clitic. The same holds true for the negative equivalents of \textit{jokin}, \textit{kukaan} 'no one, anyone' and \textit{mikään} 'nothing, anything'. For both forms, differing infixes are added to Table \ref{table:finnish_pronouns}. For \textit{jompi=kumpi} 'either one, one or the other' both parts decline again. In \textit{kumpi-kin} 'each of two, both', \textit{kumpi-kaan} 'neither' and \textit{kukin} 'each, everyone' again the clitics \textit{-kin} and \textit{kaan} are added. At this point, most infixes are already part of the paradigm. Though, further forms are still enclosed.
+When it comes to Finnish relative pronouns, the most common one is \textit{joka} 'who, which, that'. For this form \textit{-ka} is also appended in the genitive singular. All other markers, likewise for the second relative pronoun \textit{mikä}, are already in the paradigm. At this point the impression arises that the paradigm is quite complete. When \citet{white2008finn} is used to revise these findings, there were no apparent differences concerning the concrete case markers although some further, finer grained pronouns were presented. From this, it becomes apparent that the final paradigm in Table \ref{table:finnish_pronouns} is comprehensive. Most of the pronominal case markers resemble those of the other nominals. However, as several different forms emerged and not all cases are distinguished, building this paradigm from scratch was necessary.
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|p{3cm}||p{5cm}|p{5cm}|}
+ \hline
+ Case & Singular & Plural \\ [1ex]
+ \hline\hline
+ Nominative & \foreignlanguage{finnish}{} & \foreignlanguage{finnish}{-kä}  \\ [1ex]
+ \hline
+ Genitive & \foreignlanguage{finnish}{-n, -män, -kä, -nkä, -n-, -ka, \par -nka} & \foreignlanguage{finnish}{-dän, -den, -kä, -den-, -en-  } \\ [1ex]
+ \hline
+ Accusative & \foreignlanguage{finnish}{-t, -kä} & \foreignlanguage{finnish}{-dät, -kä} \\ [1ex]
+ \hline
+ Partitive & \foreignlanguage{finnish}{-a, -ta, -tä, -ta-, -tä-, -a- }  & \foreignlanguage{finnish}{-tä, -ta, -a, -ta-, -tä- } \\ [1ex]
+ \hline
+ Inessive & \foreignlanguage{finnish}{-ssa, -ssä, -nä, -ssa-, -ssä-} & \foreignlanguage{finnish}{-ssä, -ssa, -ssa-, -ssä- } \\ [1ex]
+ \hline
+ Elative & \foreignlanguage{finnish}{-sta, -stä, -tä, -sta-, -stä-} & \foreignlanguage{finnish}{-stä, -sta, -sta-, -stä- } \\ [1ex]
+ \hline
+ Illative & \foreignlanguage{finnish}{-un, -en, -hän, -hon, -hen, \par -hin, -an, -hun, -hon-, -en-, \par -hin-, -an-, -hun- } & \foreignlanguage{finnish}{-hin, -in, -hin-, -in- } \\ [1ex]
+ \hline
+ Adessive & \foreignlanguage{finnish}{-lla, -llä, -lla-, -llä-} & \foreignlanguage{finnish}{-llä, -lla, -lla-, -llä- } \\ [1ex]
+ \hline
+ Ablative & \foreignlanguage{finnish}{-lta, -ltä, -lta-, -ltä-} & \foreignlanguage{finnish}{-ltä, -lta, -lta-, -ltä- } \\ [1ex]
+ \hline
+ Allative & \foreignlanguage{finnish}{-lle, -lle-} & \foreignlanguage{finnish}{-lle, -lle-} \\ [1ex]
+ \hline
+ Essive & \foreignlanguage{finnish}{-nä, -na, -na-} & \foreignlanguage{finnish}{-nä, -na, -na- } \\ [1ex]
+ \hline
+ Translative & \foreignlanguage{finnish}{-ksi, -ksi- } & \foreignlanguage{finnish}{-ksi, -ksi- } \\ [1ex]
+ \hline
+\end{tabular}
+\caption{Table of Finnish Pronominal Case Markers}
+\label{table:finnish_pronouns}
+\end{table}
+
+
+
+
+
+
+\chapter{Conclusion}
+
+At this point, this thesis has examined the theoretical foundations of case, case semantics and its connection to surface case markers. After a linguistically and computationally sensible definition of these forms was set out on the basis of a morphological approach, a methodology of extracting these morphemes from a multilingual set of languages was created and practically conducted. During the analysis of four Indo-European languages, that may all be classified as rather fusional, it became apparent that the theoretical separation of a nominal stem and the case marker is not always clearly possible. In these instances, speakers need to trust their feeling for language and linguists the set out declension paradigms in grammar works in order to extract concrete case markers. However, as these are mostly suffixes, they can be extracted from text by using computational methods quite well. Similarly, this applies to those suffixing markers of the two agglutinative languages that have been analyzed. Yet, their characteristic of additionally adding suffixes not related to case and therefore turning the case suffixes into infixes complicates the matter.
+
+Overall, it was challenging to apply such a rather fixed system of case markers to the diversity of natural languages. In order to create a reliable and valid gold standard that may be used as a reference work, it was tried to be as coherent and detailed as possible. On the other hand, very fine grained or incongruent details that do not fit into the pattern had to be omitted. It was aimed to describe these decisions similarly as all those forms that lead towards the final paradigms.
+
+In retrospect, it was initially expected to analyze and include more languages into the gold standard. However, during the editing process of the first languages, it became apparent that analyzing the complete case marking behaviour of languages was much more extensive than anticipated. Especially due to the fact that grammar books do not show clear paradigms for all distinct members of a certain part of speech, it was necessary to transfer several case markers between these. Additionally, it is mostly summarized declension tables that are given which lack special forms that are important for the gold standard, though. Such forms often needed to be extracted from given examples.
+
+When it comes to an outlook for possible future work on this task, a short overview on further languages that would be interesting to be further analyzed should be given. As another Uralic-Ugric language, Hungarian shows an exceedingly diverse set of cases that is consequently also of interest when it comes to case semantics. Similarly, Polish as a further Slavic language that does not use the Cyrillic Alphabet would be on this list. These two are, for example, also analyzed is the contrastive grammar of  \citet{gunkel2017ger} that compares them and two further languages to German. Additionally, Tamil as the most representative member of Dravidian languages with a rather comprehensive case system could improve the gold standard. Together with Hindi, the most representative of the possible Indic languages, their script is rather challenging, though. The same holds true for Japanese that would also present an agglutinative language. Eventually, it was also thought of dealing with Hebrew or Arabic, two Semitic languages. However their present case system is rather unclear in present day English.
+
+Further challenges that need to be addressed when continuing this task arise. A first example would be the possibility of double case marking in some languages. This was exemplary mentioned for some Finnish pronouns in which the case morpheme is represented as an infix and a suffix. A possible solution for this very fine grained analysis would be to initially check for suffixes and then, in a second step, look for in- and prefixes. Moreover, as being mentioned by \citet{dryerwals51}, languages without either adpositional or morphological case markings are also widely distributed on this planet. Therefore, it would be important to try to incorporate case marking strategies that are executed via the word order. \citet{blake1994case} additionally indicates on this that such analytic case marking methods are rather used for non-core or peripheral relations and are thereby especially important to detect semantic roles.
+
+Finally, during the work on this thesis, UniMorph 4.0 \citep{https://doi.org/10.48550/arxiv.2205.03608} was introduced. This presents the succeeding approach of UniMorph by which the machine generate silver standard used in \textit{CaMEL} was created. This new paper presents normalized morphological inflection tables for hundreds of diverse languages of the world, compiled by numerous linguists. However, it remains unclear whether and how exactly case is distinguished in the process and the final resulting tables. Therefore, this thesis may hopefully maintain its raison d'être for some more time.
+
+
+
+
+
+\newpage
+
+%Bibliography with Bibtex bibl-casemarkers.bib
+\bibliography{bibl-casemarkers}
+\bibliographystyle{plainnat}
+
+
+%\newpage
+% Abbildungsverzeichnis (kann auch nach dem Inhaltsverzeichnis kommen)
+%\listoffigures
+
+\newpage
+
+% Tabellenverzeichnis (kann auch nach dem Inhaltsverzeichnis kommen)
+\listoftables
+
+\newpage
+
+
+
+\addchap{Contents of the Enclosed CD}
+
+The CD enclosed to this printed version contains a main directory named by the title of the thesis. In this, its original format in LaTeX is stored together with the pdf version and the further required files that are needed to compile it (clba.sty style sheet, bibl-casemarkers.bib BibTeX file and the CIS logo lmu\_cis\_logo.pdf). It should be noted at this point that the thesis was created by using the cloud-based LaTeX editor 'Overleaf'. Additionally, two further directories are added that contain digitally available sources that were used for the thesis and a presentation which was held in the accompanying colloquium. Finally, the created gold standard is appended in a processable python file. For this, the tables of case markers of each language in the preceding text were stored in a nested dictionary named after this language. In order to include the three dimensions of multilingual case markers, the dictionaries are nested in three levels. The value of the first key, the declinable parts of speech, is the two numbers. These again represent the key of a dictionary whose values are the cases used by the respective language. Lastly, each case is a key of a dictionary whose value is a set of case markers indicating this case. According to the specification in \citet{weissweiler2022camel} instead of a hyphen, the \$ sign is used here to indicate word boundaries of case markers. Thereby, a differentiate of the three types of affixes as well as complete case marking word forms can be made. Similarly, by differentiating part of speech and number, these categories can be included or excluded so that a comprehensive set of all case markers for each language can be created.
+
+
+
+
+\end{document}
